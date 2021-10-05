@@ -1,0 +1,20 @@
+
+##
+# One might want to keep their jira credentials in the .jiraenv.
+# If you do, be careful it does not get checked in to git 
+#
+.jiraenv 
+
+##
+# don't check in your python virtual environment 
+#
+.venv 
+
+## 
+# the shell functions name the output files with a default .json extension
+# if you've been poking around on the command line, you might have several *.json files lyaing about 
+# this keeps them from being listed as untracked files 
+#
+*.json 
+
+
