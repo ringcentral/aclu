@@ -3,6 +3,7 @@
 import typer 
 import requests 
 import utils 
+from typing import List, Optional  
 
 
 app = typer.Typer() 
@@ -11,34 +12,70 @@ jiraBaseUrl = 'https://jira.ringcentral.com/rest/api/latest/'
 
 
 #######
-def printDashboardNames(dbs: list) -> None:
+def processDashboards(dbs: list, searchList: List[str] = None, printNames: bool = False) -> None:
     for db in dbs:
-        typer.echo(db['name'])
+        name = db['name']
+        if printNames:
+            typer.echo(name)
+        if searchList:
+            for sstr in searchList:
+                if sstr.lower() in name.lower():
+                    typer.echo(f'string {sstr} is part of dashboard name {name}')
 
 
 #######
-def processDashboardResponse(resp: object) -> str:
-    typer.echo('processing dashboard response')
+def processDashboardResponse(resp: object, searchList: List[str] = None, printNames: bool = False, answerYes: bool = False) -> str:
+##     typer.echo('processing dashboard response'),
     next = None
     dbo = utils.getObjectFromJsonString(resp.text)
     if dbo != None:
         startAt = dbo['startAt']
         maxResults = dbo['maxResults']
         total = dbo['total']
-        next = dbo['next']
         typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}')
-        typer.echo(f'issue next query with URL: {next}')
-        printDashboardNames(dbo['dashboards'])
+        if searchList or printNames:
+            processDashboards(dbo['dashboards'], searchList, printNames)
+        if answerYes or  typer.confirm('Continue to the next block of dashboards?'):
+            ## can't use {} as next doesn't exist if on last page 
+            next = dbo.get('next', None)
+            ## typer.echo(f'issue next query with URL: {next}')
     ## this is not broken indentation, next was initiated to None 
     return next
 
 
 #######
-@app.command(name='dbs')
-def dashboards() -> None:
-    typer.echo('looking through the dashboards')
-    resp = requests.get(jiraBaseUrl+ 'dashboard?maxResults=50', auth = jiraCreds)
-    processDashboardResponse(resp)
+dbsHelp =     """
+    dbs is short for dashboards \n
+    must use either -s or -n, or both. \n
+    multiple -s options will result in finding dashboard with names containing any of those strings (OR'd) \n
+    if you use -y, you probably want a larger pageSize  \n
+    if you use -n, you probably want a smaller pageSize  \n
+    """
+
+@app.command(name='dbs', 
+        help=dbsHelp)
+def dashboards(
+        searchList: Optional[List[str]] = typer.Option(None, "-s", "--search", help="use multiple -s options to search for multiple strings."),   
+        printNames: bool = typer.Option(False, "-n", "--names", help="print the name of each dashboard."),
+        pageSize: int = typer.Option(50, "-p", "--pageSize", help="how many dashboards to retrieve on each GET."),
+        answerYes: bool = typer.Option(False, "-y", "--yes", help="don't ask to continue after each page, just do it!")
+) -> None:
+    """
+    must use either -s or -n, or both.
+    multiple -s options will result in finding dashboard with names containing any of those strings (OR'd)
+    if you use -y, you probably want a larger pageSize 
+    if you use -n, you probably want a smaller pageSize 
+    """
+    if searchList: 
+        typer.echo(f'Search dashboards for any of {searchList}')
+    elif printNames:
+        typer.echo('print names of dashboards')
+    else:
+        typer.echo('either search or print, otherwise, why are you here?')
+        return
+    resp = requests.get(jiraBaseUrl+f'dashboard?maxResults={pageSize}', auth = jiraCreds)
+    while (next := processDashboardResponse(resp, searchList, printNames, answerYes)) != None:
+        resp = requests.get(next, auth = jiraCreds)
 
 
 #######
