@@ -7,7 +7,6 @@ from typing import List, Optional
 
 
 app = typer.Typer() 
-jiraCreds = None 
 jiraBaseUrl = 'https://jira.ringcentral.com/rest/api/latest/'
 
 
@@ -52,20 +51,15 @@ dbsHelp =     """
     if you use -n, you probably want a smaller pageSize  \n
     """
 
-@app.command(name='dbs', 
-        help=dbsHelp)
-def dashboards(
+@app.command(name='dbs', help=dbsHelp)
+def dashboards(ctx: typer.Context, 
         searchList: Optional[List[str]] = typer.Option(None, "-s", "--search", help="use multiple -s options to search for multiple strings."),   
         printNames: bool = typer.Option(False, "-n", "--names", help="print the name of each dashboard."),
         pageSize: int = typer.Option(50, "-p", "--pageSize", help="how many dashboards to retrieve on each GET."),
         answerYes: bool = typer.Option(False, "-y", "--yes", help="don't ask to continue after each page, just do it!")
 ) -> None:
-    """
-    must use either -s or -n, or both.
-    multiple -s options will result in finding dashboard with names containing any of those strings (OR'd)
-    if you use -y, you probably want a larger pageSize 
-    if you use -n, you probably want a smaller pageSize 
-    """
+    jiraUser, jiraPw, jiraUrl = ctx.obj
+    typer.echo(f'looking at dashboards for user: {jiraUser}')
     if searchList: 
         typer.echo(f'Search dashboards for any of {searchList}')
     elif printNames:
@@ -73,14 +67,14 @@ def dashboards(
     else:
         typer.echo('either search or print, otherwise, why are you here?')
         return
-    resp = requests.get(jiraBaseUrl+f'dashboard?maxResults={pageSize}', auth = jiraCreds)
+    resp = requests.get(jiraUrl + f'dashboard?maxResults={pageSize}', auth = (jiraUser, jiraPw))
     while (next := processDashboardResponse(resp, searchList, printNames, answerYes)) != None:
-        resp = requests.get(next, auth = jiraCreds)
+        resp = requests.get(next, auth = (jiraUser,jiraPw))
 
 
 #######
 @app.callback(invoke_without_command=True)
-def main(
+def main(ctx: typer.Context, 
         jira_user: str = typer.Option(..., 
             "-u", "--jirauser", envvar="JIRA_USER", 
             prompt="Please enter your jira username: "),
@@ -90,8 +84,7 @@ def main(
             confirmation_prompt=True, hide_input=True)
 ):
     typer.echo(f'Hello Jira User: {jira_user}') 
-    global jiraCreds 
-    jiraCreds = (jira_user, jira_pw) 
+    ctx.obj = (jira_user, jira_pw, jiraBaseUrl) 
 
 
 if __name__ == "__main__":
