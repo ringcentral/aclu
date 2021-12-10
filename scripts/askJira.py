@@ -2,12 +2,13 @@
 
 import typer
 import serverApi
+import agileApi 
 
 
 app = typer.Typer()
 app.add_typer(serverApi.app, name='server')
+app.add_typer(agileApi.app, name='agile')
 
-jiraServerBaseUrl = 'https://jira.ringcentral.com/rest/api/latest/'
 
 #######
 @app.callback(invoke_without_command=True)
@@ -21,10 +22,12 @@ def main(ctx: typer.Context,
                                      confirmation_prompt=True, hide_input=True)
          ):
     typer.echo(f'Hello Jira User: {jira_user}')
-    if ctx.invoked_subcommand == 'server':
-        ctx.obj = (jira_user, jira_pw, jiraServerBaseUrl)
+    ## the Context obj is used to pass information to subcommands 
+    
+    ctx.obj = (jira_user, jira_pw)
 
 
+#######
 if __name__ == "__main__":
     app()
 

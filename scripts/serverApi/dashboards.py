@@ -4,6 +4,7 @@ import requests
 import utils 
 from typing import List, Optional  
 from serverApi import app 
+from serverApi import jiraServerBaseUrl 
 
 
 #######
@@ -53,7 +54,7 @@ def dashboards(ctx: typer.Context,
     if you use -n, you probably want a smaller pageSize  
     """
 
-    jiraUser, jiraPw, jiraUrl = ctx.obj
+    jiraUser, jiraPw = ctx.obj
     typer.echo(f'looking at dashboards for user: {jiraUser}')
     if searchList: 
         typer.echo(f'Search dashboards for any of {searchList}')
@@ -62,7 +63,7 @@ def dashboards(ctx: typer.Context,
     else:
         typer.echo('either search or print, otherwise, why are you here?')
         return
-    resp = requests.get(jiraUrl + f'dashboard?maxResults={pageSize}', auth = (jiraUser, jiraPw))
+    resp = requests.get(jiraServerBaseUrl + f'dashboard?maxResults={pageSize}', auth = (jiraUser, jiraPw))
     while (next := processDashboardResponse(resp, searchList, printNames, answerYes)) != None:
         resp = requests.get(next, auth = (jiraUser,jiraPw))
 
