@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import typer
-import serverApi
-import agileApi 
+from jiraApi import serverApi
+from jiraApi import agileApi 
 
 
 app = typer.Typer()

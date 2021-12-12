@@ -1,11 +1,10 @@
 
 import typer 
 import requests 
-from ..askJira import apiUtils 
-# from ..askJira import apiUtils.utils as  utils 
 from typing import List, Optional  
-from serverApi import app 
-from serverApi import jiraServerBaseUrl 
+from .. import apiUtils 
+from . import app 
+from . import jiraServerBaseUrl 
 
 
 #######
@@ -23,7 +22,7 @@ def processDashboards(dbs: list, searchList: List[str] = None, printNames: bool 
 #######
 def processDashboardResponse(resp: object, searchList: List[str] = None, printNames: bool = False, answerYes: bool = False) -> str:
     next = None
-    dbo = utils.getObjectFromJsonString(resp.text)
+    dbo = apiUtils.getObjectFromJsonString(resp.text)
     if dbo != None:
         startAt = dbo['startAt']
         maxResults = dbo['maxResults']
