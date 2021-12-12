@@ -41,7 +41,7 @@ def printObjectFirstLevel(ob: object) -> None:
         print(f'something bad happened while trying to print object. errer: {ex}')
 
 
-jira = JiraGet() 
+server = JiraGet() 
 agile = AgileGet()
 ppjs = prettyPrintJsonString 
 pofl = printObjectFirstLevel 

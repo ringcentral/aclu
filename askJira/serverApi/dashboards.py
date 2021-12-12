@@ -1,7 +1,8 @@
 
 import typer 
 import requests 
-import utils 
+from ..askJira import apiUtils 
+# from ..askJira import apiUtils.utils as  utils 
 from typing import List, Optional  
 from serverApi import app 
 from serverApi import jiraServerBaseUrl 
