@@ -22,9 +22,9 @@ def main(ctx: typer.Context,
                                      confirmation_prompt=True, hide_input=True)
          ):
     typer.echo(f'Hello Jira User: {jira_user}')
-    ## the Context obj is used to pass information to subcommands 
-    
+    ## the Context obj is used to pass information to subcommands     
     ctx.obj = (jira_user, jira_pw)
+    ## now let typer do its thing and route to the specified command 
 
 
 #######
