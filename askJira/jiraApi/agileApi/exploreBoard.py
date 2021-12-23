@@ -8,7 +8,7 @@ import typer
 
 
 #######
-def exploreBoard(board: object) -> None:
+def exploreBoard(board: object, jiraCreds: tuple) -> None:
     typer.echo(f'Exploring board: {board["name"]}, type: {board["type"]}, id: {board["id"]}')
 
 

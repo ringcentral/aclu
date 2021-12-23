@@ -1,3 +1,8 @@
 # __init__.py for jiraApi package 
+#
+# this is here only for modules in the serverApi and agileApi packages 
+# to be able to import apiUtils 
+#
+
 
 
