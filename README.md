@@ -1,32 +1,15 @@
-# jiraAPI Repo 
+# Accessible Command Line Utilities (ACLU) 
 
-This repo is all about using the Jira API to build tools to optimize the usage of Jira from the command line or integrated with home built web apps.
+This repo contains utilities with a broad theme of making tasks developers often perform more efficient when using a screen reader.
 
-## Jira APIs 
+#  askJira tool 
 
-Atlassian has the jira APIs structured in somwhat of a hierarchy.
-At the base is the [Jira Server API](https://docs.atlassian.com/software/jira/docs/api/REST/8.18.1/).
+Every developer knows of the fundamental need to track work to be done on their project.  jira has become a defacto standard tool in the software developement industry.  Thus the first utility created is focused on using Jira. 
 
-The other API of interest  for project management is the 
-[Jira Agile API](https://docs.atlassian.com/jira-software/REST/7.3.1/).
+askJira was motivated by a need to interface with Jira in a more efficient way, especially when using a screen reader.  
+It is primairily a command line tool for searching and presenting data from Jira in a more accessible way.  
+That might be command line only with text as output, or web pages might be built with more of a focus on accessibility and navigation when using a screen reader. 
 
+[Documentation for askJira](askJira/README.md)
 
-## Shell Function 
-
-some bash shell functions are defined in .jirarc. 
-They use environment variables for user and password for Jira authentication. 
-If you create a file, e.g., .jiraenv which exports those environment variables, remember to `chmod 400 .jiraenv` to have at least some level of security if you're on a multi user system 
-
-## scripts directory 
-
-this is where Python3 scripts will eventually reside.
-There is a requirements.txt file updated with modules required for the scripts.
-I suggest using a virtual environment.
-I like the command:
-```
-python3 -m venv --prompt jiraapi .venv 
-```
-
-This will create a virtual environment in a .venv directory and your prompt will be prefixed with "(jiraapi)" once you activate the directory.
-
-
+###### end of ACLU README 

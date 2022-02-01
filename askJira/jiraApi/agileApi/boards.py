@@ -43,11 +43,11 @@ def processBoardResponse(resp: object, searchList: List[str] = None, caseSensiti
         maxResults = bo['maxResults']
         ## if too many items, total might not be calculated, thus not in the response  
         total = bo.get('total', None) 
-        ## typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}')
+        typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}')
         if searchList or printNames:
             foundList = apiUtils.searchNamesInValues(bo['values'], searchList, caseSensitive, printNames)
         else:
-            ## we just want the list, don't filter it 
+            ## getting the list for processing later 
             foundList = bo['values']
         if answerYes or  typer.confirm('Continue to the next block of boards?'):
             ## have to manually construct 'next' unlike server/dashboards 
@@ -76,7 +76,7 @@ def boards(ctx: typer.Context,
     """
 
     jiraUser, jiraPw = ctx.obj
-    typer.echo(f'looking at boards for user: {jiraUser}')
+    typer.echo(f'looking at boards for user: {jiraUser}, pw: {jiraPw}')
     if searchList: 
         typer.echo(f'Search boards for any of {searchList}')
         if caseSensitive:
