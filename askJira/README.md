@@ -1,3 +1,9 @@
+# Documentation for askJira 
+
+askJira was motivated by a need to interface with Jira in a more efficient way, especially when using a screen reader.  
+It is primairily a command line tool for searching and presenting data from Jira in a more accessible way.  
+That might be command line only with text as output, or web pages might be built with more of a focus on accessibility and navigation when using a screen reader. 
+
 ## The Atlassian/Jira APIs 
 
 Atlassian has the jira APIs structured in somwhat of a hierarchy.
@@ -34,3 +40,4 @@ If you create a file, e.g., .jiraenv which exports those environment variables, 
 
 Also note the host part of the URL is hard coded to jira.ringcentral.com, you probably want to change that. 
 
+###### end of documentation for askJira 
