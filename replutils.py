@@ -12,13 +12,13 @@ import json
 jiraUser = os.getenv('JIRA_USER')
 jiraPw = os.getenv('JIRA_PW')
 jiraCreds = (jiraUser, jiraPw)
-jiraBaseUrl = 'https://jira.ringcentral.com/rest/api/latest/' 
+serverBaseUrl = 'https://jira.ringcentral.com/rest/api/latest/' 
 agileBaseUrl = 'https://jira.ringcentral.com/rest/agile/latest/' 
 
 
-class JiraGet:
+class ServerGet:
     def __call__(self, resource: str) -> object:
-        return requests.get(jiraBaseUrl + resource, auth=jiraCreds)
+        return requests.get(serverBaseUrl + resource, auth=jiraCreds)
 
 class AgileGet:
     def __call__(self, resource: str) -> object:
@@ -42,8 +42,9 @@ def printObjectFirstLevel(ob: object) -> None:
             # else print the type and memory size 
             if isinstance(v, (int, str, bool)):
                 print(f'key {k}: value {v}')
-            elif isinstance(v, list):
-                print(f'key {k}: is list with length {len(v)}')
+            ## elif isinstance(v, list):
+            elif hasattr(v, '__len__'):
+                print(f'key {k}: has type {type(v)}, with length {len(v)}')
             else:
                 print(f'key {k}: has type {type(v)} and memory size {sys.getsizeof(v)}')
     except Exception as ex:
@@ -55,7 +56,7 @@ def printResponseFirstLevel(resp):
     except Exception as ex:
         print(f'something bad happened while trying to print response. errer: {ex}')
 
-server = JiraGet() 
+server = ServerGet() 
 agile = AgileGet()
 ppjs = prettyPrintJsonString 
 pofl = printObjectFirstLevel 
