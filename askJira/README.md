@@ -8,17 +8,17 @@ That might be command line only with text as output, or web pages might be built
 
 Atlassian has the jira APIs structured in somwhat of a hierarchy.
 At the base is the
-[Jira Server API](https://docs.atlassian.com/software/jira/docs/api/REST/latest/).
+[Jira Server Platform API](https://docs.atlassian.com/software/jira/docs/api/REST/latest/).
 
 The other API of interest  for project management is the
-[Jira Agile API](https://docs.atlassian.com/jira-software/REST/latest/).
+[Jira Software Server (Agile) API](https://docs.atlassian.com/jira-software/REST/latest/).
 
 The board resource in the agile API will be the main focus of the apps.  The board contains epics and sprints which provide paths to issues.  Epics, sprints, and issues are resources themselves and you'll see them as part of the configuration options and output from askJira.  For deeper notes on the Atlassian APIs, see
 [notes on Atlassian APIs](jiraApi/ATLASSIAN_API_NOTES.md).
 
 ## About the source code
 
-Read it
+Read it (or wwait for me to fill out this section, don't hold your breath)
 
 ## Rinning askJira
 
@@ -30,7 +30,31 @@ I like the command:
 python3 -m venv --prompt askJira  .venv 
 ```
 
-This will create a virtual environment in a .venv directory and your prompt will be prefixed with "(askJira)" once you activate the directory.
+This will create a virtual environment in a .venv directory and your prompt will be prefixed with "(askJira)" once you activate the environment:
+""" sh
+source ./venv/bin/activate
+"""
+
+With the virtual environment setup, run:
+""" sh
+pip install -r requirements.txt
+"""
+Now you are set to run askJira.  I've tried to add enough help in the project to avoid having to write it here.  Try running:
+""" sh
+python askJira.py --help
+"""
+for the command line arguments and options.  As of Feb 8, 2022, there are two commands, "server" and "agile."  You should see the list of commands in the output from --help.  For options for commands try, for example:
+""" sh
+python askJira.py agile --help
+"""
+
+askJira needs your Jira credentials for basic authentication for the REST API requests.  askJira will look for those in environment variables "JIRA_USER" and "JIRA_PW."
+Alternatively, you can use command line options (as seen in the --help output) or askJira will ask you for the values as a last resort.  Your password will not be echoed on the screen if you opt for the last resort.
+
+## Config File
+
+Instead of using askJira to search Jira, you can specify a config file with information you know you want.
+See the file "ajConfig.json" for notes about the config file.
 
 ## bash Shell Functions in .jirarc  
 
