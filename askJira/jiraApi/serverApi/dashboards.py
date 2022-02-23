@@ -1,29 +1,13 @@
+"""
+dashboards.py represents about the only thing interesting in the server platform API
+  (other than issues of course but we get to those via the agile API) 
+"""
 
 import typer 
 from typing import List, Optional, Tuple, Dict
 from .. import apiUtils 
 from . import app 
 from . import jiraServerBaseUrl 
-
-
-#######
-def processDashboardResponse(resp: object, searchList: List[str] = None, caseSensitive: bool = False, printNames: bool = False, answerYes: bool = False) -> Tuple[str, List[Dict]]:
-    next = None
-    foundList = []
-    dbo = apiUtils.getObjectFromJsonString(resp.text)
-    if dbo != None:
-        startAt = dbo['startAt']
-        maxResults = dbo['maxResults']
-        ## if too many items, total might not be calculated, thus not in the response  
-        total = dbo.get('total', None) 
-        typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}')
-        if searchList or printNames:
-            foundList = apiUtils.searchNamesInValues(dbo['dashboards'], searchList, caseSensitive, printNames)
-        if answerYes or  typer.confirm('Continue to the next block of dashboards?'):
-            ## can't use {} as next doesn't exist if on last page 
-            next = dbo.get('next', None)
-    ## this is not broken indentation, next was initiated to None 
-    return next, foundList
 
 
 #######
@@ -55,20 +39,8 @@ def dashboards(ctx: typer.Context,
         typer.echo('either search or print, otherwise, why are you here?')
         return
     foundDashboards = apiUtils.getPaginatedResources(f'{jiraServerBaseUrl}dashboard', pageSize, searchList, caseSensitive,printNames, answerYes) 
-    """
-    resp = apiUtils.getResource(f'{jiraServerBaseUrl}dashboard?maxResults={pageSize}')
-    while True:
-        next, foundList = processDashboardResponse(resp, searchList, caseSensitive, printNames, answerYes)
-        foundDashboards +=  foundList 
-        if next != None:
-            resp = apiUtils.getResource(next)
-        else:
-            break
-    """
-    ## we have found as many dashbords as we're going to,
-    ## now what do we do with them?
-    if searchList: 
-        typer.echo(f'found {len(foundDashboards)} dashboards, now what?')
+    ## what do we do with the dashboards?
+    typer.echo(f'found {len(foundDashboards)} dashboards, now what?')
 
 
 ## end of file 

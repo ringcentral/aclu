@@ -1,10 +1,9 @@
-##
-# boards.py started as a copy of serverApi\dashboards.py
-# I moved some code into apiUtils but the server dashboards API 
-# and agile boards API have some differences and duplicating code 
-# seemed as unpleasant as hackery to try and break out response handling into a util
-# specifically, the next string in dashboards vs the islast bool in boards
-## 
+"""
+boards.py is the main command in the agile command.
+A board is the main aggregator of information for the Atlassian API.
+It holds all the Epics and Sprints and other resources.
+It is the main entry point for the CLU for the agile queries. 
+"""
 
 import typer 
 from typing import List, Optional, Tuple, Dict
@@ -27,33 +26,9 @@ def printBoardTypes(boards: List[Dict]) -> None:
         else:  ## there was no type property 
             typeCounts['noValue'] += 1 
     ## typeCounts is complete, now print it 
-    typer.echo(f'There are {len(typeCounts.keys()) - 1} different types of boards')
+    typer.echo(f'There are {len(boards)} boards total and  {len(typeCounts.keys()) - 1} different types of boards')
     for k,v in typeCounts.items():
         typer.echo(f'{v} boards have type {k}')
-
-
-#######
-def processBoardResponse(resp: object, searchList: List[str] = None, caseSensitive: bool = False, printNames: bool = False, answerYes: bool = False) -> Tuple[str, List[Dict]]:
-    next = None
-    foundList = []
-    bo = apiUtils.getObjectFromJsonString(resp.text)
-    if bo != None:
-        startAt = bo['startAt']
-        maxResults = bo['maxResults']
-        ## if too many items, total might not be calculated, thus not in the response  
-        total = bo.get('total', None) 
-        typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}')
-        if searchList or printNames:
-            foundList = apiUtils.searchNamesInValues(bo['values'], searchList, caseSensitive, printNames)
-        else:
-            ## getting the list for processing later 
-            foundList = bo['values']
-        if answerYes or  typer.confirm('Continue to the next block of boards?'):
-            ## have to manually construct 'next' unlike server/dashboards 
-            if not bo['isLast']:
-                next = f'{jiraAgileBaseUrl}board?maxResults={maxResults}&startAt={startAt + maxResults}'
-    ## this is not broken indentation, next was initiated to None 
-    return next, foundList
 
 
 #######
@@ -87,18 +62,7 @@ def boards(ctx: typer.Context,
             typer.echo('either search, print, or count types, otherwise, why are you here?')
             return
     foundBoards = apiUtils.getPaginatedResources(f'{jiraAgileBaseUrl}board', pageSize, searchList, caseSensitive, printNames,answerYes)
-    """
-    resp, _ = apiUtils.getResource(f'{jiraAgileBaseUrl}board?maxResults={pageSize}')
-    while True:  ## hacking a do while loop 
-        next, foundList = processBoardResponse(resp, searchList, caseSensitive, printNames, answerYes)
-        foundBoards +=  foundList 
-        if next != None:
-            resp, _ = apiUtils.getResource(next)
-        else:
-            break
-    """
-    ## we have found as many bords as we're going to,
-    ## now what do we do with them?
+    ## what do we do with the boards?
     if len(foundBoards) > 0:
         if countTypes:
             printBoardTypes(foundBoards)
