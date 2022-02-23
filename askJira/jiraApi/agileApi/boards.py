@@ -7,7 +7,6 @@
 ## 
 
 import typer 
-import requests 
 from typing import List, Optional, Tuple, Dict
 from .. import apiUtils 
 from . import app 
@@ -68,49 +67,47 @@ def boards(ctx: typer.Context,
         answerYes: bool = typer.Option(False, "-y", "--yes", help="don't ask to continue after each page, just do it!")
 ) -> None:
     """
-    must use either -s or -n, or both. 
+    must use either -s or -n, or both, or -t if you just want a count of types of boards. 
     multiple -s options will result in finding board with names containing any of those strings (OR'd) 
     use -c to make the search case sensitive
     if you use -y, you probably want a larger pageSize  
     if you use -n, you probably want a smaller pageSize  
     """
-
-    jiraUser, jiraPw = ctx.obj
-    typer.echo(f'looking at boards for user: {jiraUser}, pw: {jiraPw}')
-    if searchList: 
-        typer.echo(f'Search boards for any of {searchList}')
-        if caseSensitive:
-            typer.echo('search is case sensitive')
-        else:
-            typer.echo('search is NOT case sensitive')
-    elif printNames:
-        typer.echo('print names of boards')
-    elif countTypes:
+    if countTypes:
         answerYes = True 
         typer.echo('print the different types of boards and how many of each')
     else:
-        typer.echo('either search, print, or count types, otherwise, why are you here?')
-        return
-    foundBoards = []
-    resp = requests.get(jiraAgileBaseUrl + f'board?maxResults={pageSize}', auth = (jiraUser, jiraPw))
+        if searchList or printNames: 
+            typer.echo(f'Search boards for any of {searchList}')
+            if caseSensitive:
+                typer.echo('search is case sensitive')
+            else:
+                typer.echo('search is NOT case sensitive')
+        else:
+            typer.echo('either search, print, or count types, otherwise, why are you here?')
+            return
+    foundBoards = apiUtils.getPaginatedResources(f'{jiraAgileBaseUrl}board', pageSize, searchList, caseSensitive, printNames,answerYes)
+    """
+    resp, _ = apiUtils.getResource(f'{jiraAgileBaseUrl}board?maxResults={pageSize}')
     while True:  ## hacking a do while loop 
         next, foundList = processBoardResponse(resp, searchList, caseSensitive, printNames, answerYes)
         foundBoards +=  foundList 
         if next != None:
-            resp = requests.get(next, auth = (jiraUser,jiraPw))
+            resp, _ = apiUtils.getResource(next)
         else:
             break
+    """
     ## we have found as many bords as we're going to,
     ## now what do we do with them?
     if len(foundBoards) > 0:
         if countTypes:
             printBoardTypes(foundBoards)
-        if typer.confirm(f'found {len(foundBoards)}, want to go deeper?'):
+        elif typer.confirm(f'found {len(foundBoards)}, want to go deeper?'):
             ## list the boards and ask for which one to dig in to
             choices = [f'{b["name"]}, {b["type"]}, id {b["id"]}' for b in foundBoards]
             option = apiUtils.getOption(choices)
             brd = foundBoards[option]
-            exploreBoard(brd, (jiraUser,jiraPw))
+            exploreBoard(brd)
     elif searchList: 
         typer.echo(f'No boards found for search {searchList}')
 

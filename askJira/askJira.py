@@ -6,6 +6,7 @@ import typer
 from typing import Dict 
 from jiraApi import serverApi
 from jiraApi import agileApi 
+from jiraApi import apiUtils 
 
 
 app = typer.Typer()
@@ -51,8 +52,11 @@ def main(ctx: typer.Context,
                                      confirmation_prompt=True, hide_input=True)
          ) -> None:
     typer.echo(f'Hello Jira User: {jira_user}')
-    ## the Context obj is used to pass information to subcommands     
-    ctx.obj = (jira_user, jira_pw)
+    ## 
+    # the Context obj is used to pass information to subcommands     
+    # leaving this here for reference though no longer passing creds in the context object 
+    # ctx.obj = (jira_user, jira_pw)
+    apiUtils.setJiraCreds((jira_user, jira_pw))
     ## 
     # if there is a config file specified, use that
     # else, let typer do its thing and route to the specified command (which happens by default) 

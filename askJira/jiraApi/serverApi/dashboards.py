@@ -1,6 +1,5 @@
 
 import typer 
-import requests 
 from typing import List, Optional, Tuple, Dict
 from .. import apiUtils 
 from . import app 
@@ -44,9 +43,6 @@ def dashboards(ctx: typer.Context,
     if you use -y, you probably want a larger pageSize  
     if you use -n, you probably want a smaller pageSize  
     """
-
-    jiraUser, jiraPw = ctx.obj
-    typer.echo(f'looking at dashboards for user: {jiraUser}')
     if searchList: 
         typer.echo(f'Search dashboards for any of {searchList}')
         if caseSensitive:
@@ -58,15 +54,17 @@ def dashboards(ctx: typer.Context,
     else:
         typer.echo('either search or print, otherwise, why are you here?')
         return
-    foundDashboards = []
-    resp = requests.get(jiraServerBaseUrl + f'dashboard?maxResults={pageSize}', auth = (jiraUser, jiraPw))
+    foundDashboards = apiUtils.getPaginatedResources(f'{jiraServerBaseUrl}dashboard', pageSize, searchList, caseSensitive,printNames, answerYes) 
+    """
+    resp = apiUtils.getResource(f'{jiraServerBaseUrl}dashboard?maxResults={pageSize}')
     while True:
         next, foundList = processDashboardResponse(resp, searchList, caseSensitive, printNames, answerYes)
         foundDashboards +=  foundList 
         if next != None:
-            resp = requests.get(next, auth = (jiraUser,jiraPw))
+            resp = apiUtils.getResource(next)
         else:
             break
+    """
     ## we have found as many dashbords as we're going to,
     ## now what do we do with them?
     if searchList: 

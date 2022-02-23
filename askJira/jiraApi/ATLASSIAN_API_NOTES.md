@@ -35,6 +35,19 @@ Now I'm presented with a bunch of level 3 headings for the various Atlassian pro
 The very next level 3 heading  is for the Jira Software Server (also referred to as the Jira Agile API in other places in the Atlassian docs).  Look for the link to the REST API at the end of the heading section.
 [latest version of the Jira Software Server REST API](https://docs.atlassian.com/jira-software/REST/latest/)
 
+### Pagination
+
+For many of the types of resources in a Jira deployment, there can be very large numbers of instances.
+Think of how many issues  there would be in even a small companies Jira deployment.  If you tried to GET all issues from Jira in a single GET request, the payload would be huge.  Most likely something would timeout.  Thus, many of the resources are returned in "pages."
+
+Pagination is described in the documentation for each of the REST APIs.  Unfortunately, there are some inconsistencies in the implementations making it difficult to provide a generic utility to GET all paginated resources.
+I initially decided to let different areas of the code deal with pagination, and the differences, instead of trying to account for them in one place.
+This turned in to much more code redundancy than ugliness of accounting for the differences in one, encapsulated place.
+
+I'm not documenting the differences here, I think the code is good enough to understand.  
+Check out the file
+[apiUtils.py](apiUtils.py)
+
 ## Wrapping Up, Things to Remember
 
 I'm initially focused on getting project tracking information from Jira (the Agile API) so I'll stop here.  Keep in mind though there are REST APIs for most of the other Atlassian products as well.  You can see those in the remaining level 3 headings and go to their respective APIs folowing the links in each section.
