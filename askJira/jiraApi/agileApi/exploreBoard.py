@@ -5,11 +5,18 @@
 ##
 
 import typer 
+from .board import Board 
 
 
 #######
-def exploreBoard(board: object) -> None:
-    typer.echo(f'Exploring board: {board["name"]}, type: {board["type"]}, id: {board["id"]}')
+def exploreBoard(brd) -> None:
+    board = Board(brd)
+    typer.echo(f"Exploring board, id: {board.id}, name: {board.name}, type: {board.type}")
+    typer.echo('now get epics and sprints and try repr...')
+    board.getEpics()
+    board.getSprints()
+    typer.echo(f'trying repr: {repr(board)}')
+
 
 
     ## end of file 

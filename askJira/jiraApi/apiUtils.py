@@ -95,6 +95,7 @@ def getResource(url: str, convertPayload: bool = False) -> Tuple[object, object]
     if resp was not ok, return None for both objects 
     """
     try:
+        ## typer.echo(f'getting {url}, convertPayload: {convertPayload}')
         resp = requests.get(url, auth = jiraCreds)
         if resp != None and resp.ok: 
             if convertPayload: return  resp, getObjectFromJsonString(resp.text)
@@ -124,28 +125,38 @@ def getResourcesFromPayload(payload: object) -> List[Dict]:
 #######
 def getUrlForNextPage(resourceUrl: str, payload: object) -> str:
     """
-    This is the other place of inconsistency across the paginated resources.
+    This is a big place of inconsistency across the paginated resources.
     some meta data has an isLast boolean property, 
     some has a next string property for the next URL to use.
     And I've seen cases with neither but a value of 0 for the total property 
     and a list of resources of length 0 indicating there are no more pages.
-    This function is initially based on those observations.
+    This function was initially based on those observations.
+    the built up over time as I ran in to more differences 
     Ran in to a problem with dashboards in the server platform API
     Dashboards uses a next URL to indicate there is another page.
     Once the startAt has exceeded the total, there is no longer a next property in the meta data.
     But in this generic function, how to know that is different than a resource that should have an isLast parameter but doesn't?
     Anyway, that's why the check for startAt > total.
+    Ran in to an issue with getting issues on a sprint.
+    There was no 'next' field and no 'isLast' field.
+    There is a 'total though and 
+    a list of resources with len lesss than maxResults
+    I've also seen this case but no 'total' property.
+    I need to get the len of the list of resources and 
+    if that is less than maxResults, nextUrl should be None
     """
     startAt = payload.get('startAt', None)
     maxResults = payload.get('maxResults', None)
     total = payload.get('total', None)
     isLast = payload.get('isLast', None)
     next = payload.get('next', None)
-    typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}, is last: {isLast}, next is {"NOT None" if next != None else None}')
+    numResources = len(getResourcesFromPayload(payload))
+    typer.echo(f'started at: {startAt}, max results: {maxResults}, total available: {total}, numResources: {numResources}, is last: {isLast}, next is {"NOT None" if next != None else None}')
     ## now the logic.
-    ## these checks represent what I have seen so far
     if next: return next
-    if isLast or (total == 0) or (startAt > total): return None 
+    if isLast: return None 
+    if total and ((total == 0) or (startAt > total)): return None 
+    if numResources < maxResults: return None 
     ## else, we need to construct the next url based on the base and properties from the payload 
     return f'{resourceUrl}?startAt={startAt + maxResults}&maxResults={maxResults}'
 

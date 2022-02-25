@@ -34,6 +34,7 @@ def printBoardTypes(boards: List[Dict]) -> None:
 #######
 @app.command()
 def boards(ctx: typer.Context, 
+        boardId: Optional[str] = typer.Option(None, "-b", "--boardId", help="If you already know the Id of the board you want to examine, enter it on the command line."),   
         searchList: Optional[List[str]] = typer.Option(None, "-s", "--search", help="use multiple -s options to search for multiple strings."),   
         caseSensitive: bool = typer.Option(False, "-c", "--caseSensitive", help="Flag to make search case sensitive, by default it is not."),
         printNames: bool = typer.Option(False, "-n", "--names", help="print the name of each board."),
@@ -48,6 +49,10 @@ def boards(ctx: typer.Context,
     if you use -y, you probably want a larger pageSize  
     if you use -n, you probably want a smaller pageSize  
     """
+    if boardId:
+        ## hacking this up front so I can quickly look at a board 
+        exploreBoard(boardId)
+        return 
     if countTypes:
         answerYes = True 
         typer.echo('print the different types of boards and how many of each')
