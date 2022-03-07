@@ -40,7 +40,7 @@ class Sprint:
 
     #######
     def __repr__(self):
-        return f'\n####### Sprint id: {self.id}, name: {self.name}, state: {self.state}, issue count: {self.issuesCount}'
+        return f'\n####### Sprint name: {self.name}, issue count: {self.issuesCount}, state: {self.state}'
 
 
 ## end of file 

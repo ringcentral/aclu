@@ -60,7 +60,7 @@ class Board:
 
     #######
     def __repr__(self):
-        return f'Board id: {self.id}, name: {self.name}, type: {self.type} \n {self.epics} \n {self.sprints}'
+        return f'Board id: {self.id}, name: {self.name}, type: {self.type} \n{self.epics} \n{self.sprints}'
 
 
 ## end of file 

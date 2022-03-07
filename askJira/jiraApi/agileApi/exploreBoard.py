@@ -14,7 +14,7 @@ def exploreBoard(brd) -> None:
     typer.echo(f"Exploring board, id: {board.id}, name: {board.name}, type: {board.type}")
     typer.echo('now get epics and sprints and try repr...')
     board.getEpics()
-    board.getSprints()
+    ## board.getSprints()
     typer.echo(f'trying repr: {repr(board)}')
 
 

@@ -37,7 +37,7 @@ class Epic:
 
     #######
     def __repr__(self):
-        return f'\n####### epic id: {self.id}, name: {self.name}, key: {self.key}, issue count: {self.issuesCount}, done: {self.done} \n summary: {self.summary}'
+        return f'\n####### epic name: {self.name}, key: {self.key}, issue count: {self.issuesCount}, done: {self.done} \n{self.summary}'
 
 
 ## end of file 
