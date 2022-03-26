@@ -1,4 +1,7 @@
 
+## I use file sr.py to put random stuff for the repl, no need to track it
+sr.py 
+
 ##
 # One might want to keep their jira credentials in the .jiraenv.
 # If you do, be careful it does not get checked in to git 
