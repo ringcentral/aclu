@@ -30,10 +30,8 @@ class Board:
         # now brd is either a dict as passed to getBoard
         # or a dict as returned by the get to the Jira API
         # note: brd could have been passed in as None or None returned by the get
-        if brd: return Board(brd)
+        if brd: return cls(brd)
         else: return None 
-
-
 
     def __init__(self, brd: Dict, fullyPopulate: bool =False):
         """ 

@@ -142,28 +142,34 @@ def getUrlForNextPage(resourceUrl: str, payload: Dict) -> str:
 
 
 #######
-def getPaginatedResources(resourceUrl: str, pageSize: int = 50, searchList: List[str] = None, caseSensitive: bool = False) -> List[Dict]:
+def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 50) -> List[Dict]:
     """
     this is the starting point to getting the list of resources for a paginated resource 
     it takes the base URL of the resource and desired page size.
     And the list of strings to search on to filter the list. 
+    and a max number of results to return (0 is return all)
     it returns the list of resources, if any found, else empty list.
+    And maxResources is a soft limit as in, 
+    this implementation allows up to maxResources + pageSize resources to be returned 
     """
     resources = []
     nextUrl = f'{resourceUrl}?maxResults={pageSize}'
     while nextUrl:
         resp, payload = getResource(nextUrl, convertPayload=True)
         if payload == None:
-            logger.warning(f'no payload for url {nextUrl}?!? status code was {resp.status_code}')
+            logger.warning(f'no payload for url {nextUrl}?!?')
             return resources 
         ## else carry on with the payload 
         currentResources = getResourcesFromPayload(payload)
         if searchList:
-            ## might trim the list based on search strings
+            # might trim the list based on search strings
             currentResources = searchNamesInValues(currentResources, searchList, caseSensitive)
         resources += currentResources 
-        ## is there a next page?
-        nextUrl = getUrlForNextPage(resourceUrl, payload)
+        # is there a next page?
+        # if we've exceeded maxResources already, 
+        # don't get the next resource and let the loop fall through naturally 
+        if maxResults> 0 and len(resources) > maxResults: nextUrl = None
+        else: nextUrl = getUrlForNextPage(resourceUrl, payload)
     return resources 
 
 
