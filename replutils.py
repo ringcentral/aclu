@@ -1,6 +1,14 @@
 """
 some basic stuff to use as I'm poking around in the python repl 
-go to the end of the file to see the short names to import
+"""
+
+from jiraApi import JiraApi 
+ja = JiraApi()
+
+"""
+below here is stuff I wwrote before creating the JiraApi class
+I'm leaving it as it's still a decent way of querying the Jira API
+if there's something not (yet) supported in JiraApi
 """
 
 import os 
@@ -8,21 +16,20 @@ import sys
 import requests 
 import json 
 
-
 jiraUser = os.getenv('JIRA_USER')
 jiraPw = os.getenv('JIRA_PW')
+jiraBaseUrl = os.getenv('JIRA_BASE_URL')
 jiraCreds = (jiraUser, jiraPw)
-serverBaseUrl = 'https://jira.ringcentral.com/rest/api/latest/' 
-agileBaseUrl = 'https://jira.ringcentral.com/rest/agile/latest/' 
-
+serverBaseUrl = f'{jiraBaseUrl}/rest/api/latest' 
+agileBaseUrl = f'{jiraBaseUrl}/rest/agile/latest' 
 
 class ServerGet:
     def __call__(self, resource: str) -> object:
-        return requests.get(serverBaseUrl + resource, auth=jiraCreds)
+        return requests.get(f'{serverBaseUrl}/{resource}', auth=jiraCreds)
 
 class AgileGet:
     def __call__(self, resource: str) -> object:
-        return requests.get(agileBaseUrl + resource, auth=jiraCreds)
+        return requests.get(f'{agileBaseUrl}/{resource}', auth=jiraCreds)
 
 def prettyPrintJsonString(payload: str) -> None:
     """
@@ -61,8 +68,5 @@ agile = AgileGet()
 ppjs = prettyPrintJsonString 
 pofl = printObjectFirstLevel 
 prfl = printResponseFirstLevel 
-
-# cut/n/paste this into the repl:
-# from replutils import server, agile, ppjs, pofl, prfl 
 
 ## end of file 
