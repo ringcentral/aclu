@@ -1,6 +1,6 @@
-"""
-__init__.py in jiraApi 
+""" aclu/jiraApi/__init__.py 
 package for abstraction to the Jira API
+I should move the class definition to its own file... someday 
 """
 
 import logging 
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 import os 
 import validators 
-from typing import Dict, List 
+from typing import List, Dict  
 from .jiraApiUtils import StrOrDict
 from . import jiraApiUtils 
 from .board import Board 
@@ -53,16 +53,32 @@ class JiraApi:
     def __repr__(self):
         return f"user is {self.user}, platformUrl is {self.platformUrl}, agileUrl is {self.agileUrl}"
 
-    def findDashboards(self, searchList: List[str] = None, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dict]:
-        return jiraApiUtils.getPaginatedResources(f'{self.platformUrl}/dashboard', searchList, caseSensitive, maxResults, pageSize)
+    def findDashboards(self, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dashboard]:
+        tbrds = jiraApiUtils.getPaginatedResources(f'{self.platformUrl}/dashboard', searchList, containsAll, caseSensitive, maxResults, pageSize)
+        return [self.getDashboard(brd) for brd in tbrds]
 
-    def getDashboard(self, dbrd: StrOrDict) -> Dict:
+    def getDashboard(self, dbrd: StrOrDict) -> Dashboard:
         return Dashboard.getDashboard(dbrd, self.platformUrl)
 
-    def findBoards(self, searchList: List[str] = None, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dict]:
-        return jiraApiUtils.getPaginatedResources(f'{self.agileUrl}/board', searchList, caseSensitive, maxResults, pageSize)
+    def getBoardTypeCounts(self) -> Dict:
+        """
+        return a dict with keys as the strings that are type names 
+        and values is the count of how many boards are of that type
+        """
+        allbrds = jiraApiUtils.getPaginatedResources(f'{self.agileUrl}/board')
+        typeCounts = {'totalBoards': len(allbrds), 'noValue': 0}
+        for board in allbrds:
+            brdType = board.get('type', 'noValue')
+            if typeCounts.get(brdType): typeCounts[brdType] += 1
+            else: typeCounts[brdType] = 1
+        return typeCounts 
 
-    def getBoard(self, brd: StrOrDict) -> Dict:
+
+    def findBoards(self, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Board]:
+        tbrds = jiraApiUtils.getPaginatedResources(f'{self.agileUrl}/board', searchList, containsAll, caseSensitive, maxResults, pageSize)
+        return [self.getBoard(brd) for brd in tbrds]
+
+    def getBoard(self, brd: StrOrDict) -> Board:
         return Board.getBoard(brd, self.agileUrl)
 
 

@@ -1,10 +1,11 @@
-"""
-utils that use typer
+"""  aclu/acluUtils.py 
+generic utils that use typer
+they're here so any clu can use them 
 """
 
+import json 
 import typer
-from typing import List
-
+from typing import List, Dict 
 
 #######
 def getOption(choices: List[str]) -> int:
@@ -25,6 +26,47 @@ def getOption(choices: List[str]) -> int:
         else:
             if option > 0 and option <= idx: return option - 1  
             else: typer.echo('option is not in range, try again')
+
+#######
+def printLongList(data: List[object], pageSize: int = 7) -> str:
+    """
+    this is used to print objects in a list in pages
+    after each page is printed, ask how to proceed.
+    """
+    idx = 0
+    datalen = len(data) 
+    typer.echo(f'there are {datalen} items, printing {pageSize} items per page')
+    while idx < datalen:
+        typer.echo(f'item {idx}: {data[idx]}')
+        idx += 1
+        if pageSize > 0 and  idx % pageSize == 0:  
+            try:
+                cmd = typer.prompt('q to quit, c to continue, a to print all remaining items, b to show all items in browser', default='c', show_default=True) 
+            except (TypeError, ValueError) as exc:
+                typer.echo(f'something strange happened. error is {exc}')
+            else:
+                if cmd.lower() == 'q': return 'q' 
+                elif cmd.lower() =='a': pageSize = 0 
+                elif cmd.lower() == 'b': return 'b'
+                # else assume anything else means continue with printing pages 
+    # normal exit after all items have been printed 
+    return 'c' 
+
+#######
+# special read config to allow for comments in json file 
+##
+def readJsonConfigWithComments(configFile: str) -> Dict:
+    jstr = ''
+    try:
+        with open(configFile, 'r') as f:
+            for line in f.readlines():
+                ## ignore any comment lines, starting with //  
+                if not line.lstrip().startswith('//'): jstr += line 
+        ## we have the text, now try to turn it into an object to return 
+        return json.loads(jstr)
+    except Exception as ex:
+            typer.echo(f'failed to parse json config in file {configFile}.  error: {ex}')
+            return None 
 
 
 ## end of file 

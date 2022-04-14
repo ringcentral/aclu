@@ -25,35 +25,24 @@ def getObjectFromJsonString(jstr: str) -> object:
 
 
 #######
-# if search strings exists, 
-# compare each string against the name of each value object
-# if there's a match (including substring), 
-# add that value object to the set of value objects to return 
-# 
-# remeember if there are multiple search strings, more than one could match the name of a value
-# we could use a set and not track whether a value has been added to the list, 
-# but the values are dicts thus cannot be added to sets
-## 
-def searchNamesInValues(values: list[Dict], searchList: List[str], caseSensitive: bool = False) -> List[Dict]:
+# use builtins any and all to dtermine if 
+# any/all of the strings in searchList appears in the 'name' of the value
+# containsall True means all the strings in searchList must appear in the name 
+# else at least one of the strings in searchList must appear in the name 
+# # 
+def searchNamesInValues(values: list[Dict], searchList: List[str], containsAll: bool = False, caseSensitive: bool = False) -> List[Dict]:
+    if values is None or searchList is None: return values 
     ret = []
-    if values is None or searchList is None:
-        logger.warning('values and/or searchList is None')
-    else:
-        for val in values:
-            name = val['name']
-            origName = name ## use this for print in case name gets lowered later 
-            if not caseSensitive: name = name.lower()
-            added = False 
-            for sstr in searchList:
-                origSstr = sstr  # in case sstr gets lowered 
-                if not caseSensitive: sstr = sstr.lower()
-                if sstr in name:
-                    logger.info(f'string {origSstr} is part of value named {origName}')
-                    if not added:
-                        ret.append(val)
-                        added = True 
+    searchfor = all if containsAll else any 
+    searchstrings = searchList if caseSensitive else [s.lower() for s in searchList]
+    logger.debug(f'searchstrings is {searchstrings}, searching for {searchfor.__name__}')
+    for val in values:
+        namestrings = val.get('name', '').split()
+        namestrings = namestrings if caseSensitive else [s.lower() for s in namestrings]
+        if searchfor(s in namestrings for s in searchstrings): 
+            logger.debug(f'adding val with namestrings {namestrings}')
+            ret.append(val)
     return ret 
-
 
 #######
 # I should probably create a class to encapsulate the GET requests 
@@ -142,7 +131,7 @@ def getUrlForNextPage(resourceUrl: str, payload: Dict) -> str:
 
 
 #######
-def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 50) -> List[Dict]:
+def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dict]:
     """
     this is the starting point to getting the list of resources for a paginated resource 
     it takes the base URL of the resource and desired page size.
@@ -151,6 +140,10 @@ def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, caseSe
     it returns the list of resources, if any found, else empty list.
     And maxResources is a soft limit as in, 
     this implementation allows up to maxResources + pageSize resources to be returned 
+    casesensitive is easy to understand,
+    containsAll though is about AND vs OR
+    containsAll == True: return items with names containing all the search strings (AND)
+    else: return items with names containing any of the search strings (OR) 
     """
     resources = []
     nextUrl = f'{resourceUrl}?maxResults={pageSize}'
@@ -163,7 +156,7 @@ def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, caseSe
         currentResources = getResourcesFromPayload(payload)
         if searchList:
             # might trim the list based on search strings
-            currentResources = searchNamesInValues(currentResources, searchList, caseSensitive)
+            currentResources = searchNamesInValues(currentResources, searchList, containsAll, caseSensitive)
         resources += currentResources 
         # is there a next page?
         # if we've exceeded maxResources already, 

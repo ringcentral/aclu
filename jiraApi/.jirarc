@@ -1,0 +1,20 @@
+
+
+jsrvapi() { 
+    curl -u "$JIRA_USER:$JIRA_PW" -H "Content-Type:application/json" https://jira.ringcentral.com/rest/api/latest/"$1" | python3 -m json.tool > "$1".srv.json 
+} 
+
+
+###
+# jsrvapiex is so I can add expand query params to the first argument 
+# and they don't end up in the filename of the output.
+#
+jsrvapiex() { 
+    curl -u "$JIRA_USER:$JIRA_PW" -H "Content-Type:application/json" https://jira.ringcentral.com/rest/api/latest/"$1" | python3 -m json.tool > "$2".srv.json 
+} 
+
+
+
+jagileapi() { 
+    curl -u "$JIRA_USER:$JIRA_PW" -H "Content-Type:application/json" https://jira.ringcentral.com/rest/agile/latest/"$1" | python3 -m json.tool > "$1".agile.json 
+} 

@@ -16,6 +16,7 @@ from .sprint import Sprint
 
 #######
 class Board:
+
     @classmethod
     def getBoard(cls, brd: StrOrDict, jiraUrl: str) -> object:
         """
@@ -58,8 +59,7 @@ class Board:
     def getEpics(self, includeIssues: bool = False) -> None:
         jiraEpics = jiraApiUtils.getPaginatedResources(f'{self.url}/epic')
         if len(jiraEpics) > 0:
-            for ep in jiraEpics:
-                self.epics.append(Epic(ep))
+            self.epics = [Epic(ep) for ep in jiraEpics]
         else:
             logger.info(f'board {self.id}, {self.name} has no epics.  No epics for you!!')
 
@@ -67,14 +67,15 @@ class Board:
     def getSprints(self, includeIssues: bool = False) -> None:
         jiraSprints = jiraApiUtils.getPaginatedResources(f'{self.url}/sprint')
         if len(jiraSprints) > 0:
-            for spr in jiraSprints:
-                self.sprints.append(Sprint(spr))
+            self.sprints = [Sprint(spr) for spr in jiraSprints]
         else:
             logger.info(f'board {self.id}, {self.name} has no sprints.  No sprints for you!!')
 
     #######
     def __repr__(self):
-        return f'Board id: {self.id}, name: {self.name}, type: {self.type} \n{self.epics} \n{self.sprints}'
+        epicsStr = f'\n{self.epics}' if len(self.epics) > 0 else '' 
+        sprintsStr = f'\n{self.sprints}' if len(self.sprints) > 0 else ''
+        return f'Board id: {self.id}, name: {self.name}, type: {self.type} {epicsStr} {sprintsStr}'
 
 
 ## end of file 
