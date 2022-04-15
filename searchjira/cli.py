@@ -7,24 +7,28 @@ from searchjira import app
 import ui 
 from jiraApi import JiraApi 
 from acluUtils import printLongList  
-""" globals, FBOW """ 
-# jirapi = None 
 
+""" help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
+idsHelp = "search strings are IDs of resources, much faster if you know what you're looking for"
 containsAllHelp = "flag to indicate match all search words, default is to match any search word. "
 caseSensitiveHelp = "flag to make search case sensitive"
 showInBrowserHelp = "show search results in your default web browser"
 
-
 @app.command()
 def dashboards(ctx: typer.Context,
         searchstrings: List[str] = typer.Argument(..., help=searchStringsHelp),
+        ids: bool = typer.Option(False, "-i", "--ids", help=idsHelp),
         containsall: bool = typer.Option(False, "-a", "--all", help=containsAllHelp),
         casesensitive: bool = typer.Option(False, "-c", "--casesensitive", help=caseSensitiveHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:
     jirapi = ctx.obj 
-    dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
+    searchstrings = list(set(searchstrings))
+    if ids:
+        dabrds = [jirapi.getDashboard(id) for id in searchstrings]
+    else:
+        dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
     retOpt = printLongList(dabrds)
     if retOpt == 'b':
         typer.echo('soon...')
@@ -60,7 +64,6 @@ def main(ctx: typer.Context,
             "-r", "--jiraurl", envvar="JIRA_BASE_URL",
             prompt="Please enter the base URL for Jira: ",)
 ) -> None: 
-    ## typer.echo(f'searching {jira_base_url}as user: {jira_user}')
     if configfile:
         typer.echo(f'using config file: {configfile}')
     if templatedirs:

@@ -54,6 +54,7 @@ class JiraApi:
         return f"user is {self.user}, platformUrl is {self.platformUrl}, agileUrl is {self.agileUrl}"
 
     def findDashboards(self, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dashboard]:
+        searchlist = list(set(searchlist))
         tbrds = jiraApiUtils.getPaginatedResources(f'{self.platformUrl}/dashboard', searchList, containsAll, caseSensitive, maxResults, pageSize)
         return [self.getDashboard(brd) for brd in tbrds]
 
