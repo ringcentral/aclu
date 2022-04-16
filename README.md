@@ -14,7 +14,7 @@ JiraApi contains the definition of a class encapsulating the Jira APIs.
 It's in its own package partly so I can use it in the Python repl.
 
 Check out the 
-{README for the jiraApi}(jiraApi/README.md)
+[README for the jiraApi](jiraApi/README.md)
 for some details regarding the Atlassian APIs.
 
 ## roadmap
@@ -31,7 +31,7 @@ see the README for a description of the config file.
 this package is the code and templates used to generate HTML pages with data gathered by the command line tools.
 This is evolving and I'm not quite sure yet how it will be used by the different tools.
 
-{README for the ui package.}(ui/README.md)
+[README for the ui package.](ui/README.md)
 
 ## Rinning aclu tools
 
@@ -44,23 +44,23 @@ python3 -m venv --prompt aclu .venv
 ```
 
 This will create a virtual environment in a .venv directory and your prompt will be prefixed with "(aclu)" once you activate the environment:
-""" sh
+``` sh
 source ./venv/bin/activate
-"""
+```
 
 With the virtual environment setup, run:
-""" sh
+``` sh
 pip install -r requirements.txt
-"""
+```
 Now you are set to run the aclu tools.  I've tried to add enough help in the project to avoid having to write it here.  Try running:
-""" sh
+``` sh
 python3 -m  searchjira --help
-"""
+```
 for the command line arguments and options.  
 You should see the list of commands in the output from --help.  For options for commands try, for example:
-""" sh
-python3 -m searchjira agile --help
-"""
+``` sh
+python3 -m searchjira boards--help
+```
 
 ## Jira Configuration
 
