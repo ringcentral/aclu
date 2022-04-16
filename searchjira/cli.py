@@ -26,7 +26,8 @@ def dashboards(ctx: typer.Context,
     jirapi = ctx.obj 
     searchstrings = list(set(searchstrings))
     if ids:
-        dabrds = [jirapi.getDashboard(id) for id in searchstrings]
+        ## dabrds = [db if db else {id: "Does Not Exist"} for id in searchstrings if (db := jirapi.getDashboard(id)) or True]
+        dabrds = [db for id in searchstrings if (db := jirapi.getDashboard(id)) or (db := {id: "Does Not Exist"} if not db else db)]
     else:
         dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
     retOpt = printLongList(dabrds)
@@ -37,13 +38,18 @@ def dashboards(ctx: typer.Context,
 @app.command()
 def boards(ctx: typer.Context,
         searchstrings: List[str] = typer.Argument(..., help=searchStringsHelp),
+        ids: bool = typer.Option(False, "-i", "--ids", help=idsHelp),
         containsall: bool = typer.Option(False, "-a", "--all", help=containsAllHelp),
         casesensitive: bool = typer.Option(False, "-c", "--casesensitive", help=caseSensitiveHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:
     jirapi = ctx.obj 
-    brds = jirapi.findBoards(searchstrings, containsall, casesensitive)
-    ## typer.echo(f'found {len(boards)} boards: \n{boards}')
+    searchstrings = list(set(searchstrings))
+    if ids:
+        ## brds = [brd if brd else {id: "Does Not Exist"} for id in searchstrings if (brd := jirapi.getBoard(id)) or True]
+        brds = [brd for id in searchstrings if (brd := jirapi.getBoard(id)) or (brd := {id: "Does Not Exist"} if not brd else brd)]
+    else:
+        brds = jirapi.findBoards(searchstrings, containsall, casesensitive)
     retOpt = printLongList(brds)
     if retOpt == 'b':
         typer.echo('soon...')
