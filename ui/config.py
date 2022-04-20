@@ -12,12 +12,13 @@ from typing import List
 
 env = None 
 
+#######
 def getDefaultTemplateDir() -> str:
     abspath = os.path.abspath(inspect.getabsfile(inspect.currentframe()))
     dirname, filename = os.path.split(abspath)
     return dirname + '/templates' 
 
-
+#######
 def initEnv(templateDirs: List[str] = None) -> Environment:
     """
     to override any of the templates in jinjable, 

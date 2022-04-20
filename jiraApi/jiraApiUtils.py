@@ -11,8 +11,29 @@ logger = logging.getLogger(__name__)
 
 import requests 
 import json 
+import validators 
 from typing import TypeVar, List, Dict, Tuple 
 StrOrDict = TypeVar('StrOrDict', str, Dict) 
+
+
+#######
+def buildUrl(base: str, endpoint: str) -> str:
+    url = None 
+    try:
+        base = base.strip()
+        endpoint = endpoint.strip()
+        if validators.url(base) == True:
+            # remove trailing slash from base 
+            # and leading slash from endpoint, if either exists
+            base = base if base[-1] != '/' else base[:-1]
+            endpoint = endpoint if endpoint[0] != '/' else endpoint[1:]
+            url = f'{base}/{endpoint}'
+            # validate again in case endpoint had garbage 
+            if validators.url(url) != True:
+                url = None
+    except Exception:
+        pass 
+    return url 
 
 
 #######

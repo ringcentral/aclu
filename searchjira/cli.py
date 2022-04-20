@@ -3,7 +3,8 @@
 
 import typer
 from typing import List 
-from searchjira import app
+
+from . import app
 import ui 
 from jiraApi import JiraApi 
 from acluUtils import printLongList  

@@ -2,7 +2,8 @@
 """
 
 import typer 
-from roadmap import app
+
+from . import app
 import ui 
 import jiraApi 
 

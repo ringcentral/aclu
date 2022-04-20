@@ -1,7 +1,7 @@
 """ searchjira/__main__.py 
 """
 
-from searchjira import app, app_name 
+from . import app, app_name 
 
 
 def main():

@@ -1,7 +1,7 @@
 """ roadmap/__main__.py 
 """
 
-from roadmap import app, app_name 
+from . import app, app_name 
 
 
 def main():

@@ -5,8 +5,8 @@ import typer
 app = typer.Typer()
 app_name = "roadmap"
 
-# any @app functions need to be inmported here
-from roadmap.cli import main
+# any @app.command functions need to be inmported here
+from .cli import main
 
 
 def run():

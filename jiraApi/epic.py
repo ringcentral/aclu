@@ -2,10 +2,10 @@
 representing an epic resource from Jira 
 """
 
-from . import jiraApiUtils
 import logging
 logger = logging.getLogger(__name__)
 
+from . import jiraApiUtils
 
 class Epic:
     def __init__(self, ep, jiraUrl: str = None, getAllIssues: bool = False):

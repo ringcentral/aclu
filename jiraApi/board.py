@@ -9,6 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from typing import Dict 
+
 from .jiraApiUtils import StrOrDict 
 from . import jiraApiUtils 
 from .epic import Epic 
