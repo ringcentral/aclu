@@ -2,12 +2,12 @@
 """
 
 import typer
-from typing import List 
+from typing import List, Dict 
 
 from . import app
 import ui 
 from jiraApi import JiraApi 
-from acluUtils import printLongList  
+from acluUtils import printLongList, getModuleDir  
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
@@ -16,6 +16,14 @@ containsAllHelp = "flag to indicate match all search words, default is to match 
 caseSensitiveHelp = "flag to make search case sensitive"
 showInBrowserHelp = "show search results in your default web browser"
 
+
+#######
+def showInBrowser(props: Dict, template: str) -> None:
+    ui.initEnv([getModuleDir() + '/templates'])
+    ui.openPage(props, template)
+
+
+#######
 @app.command()
 def dashboards(ctx: typer.Context,
         searchstrings: List[str] = typer.Argument(..., help=searchStringsHelp),
@@ -31,11 +39,15 @@ def dashboards(ctx: typer.Context,
         dabrds = [db for id in searchstrings if (db := jirapi.getDashboard(id)) or (db := {id: "Does Not Exist"} if not db else db)]
     else:
         dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
-    retOpt = printLongList(dabrds)
-    if retOpt == 'b':
-        typer.echo('soon...')
+    if showinbrowser or printLongList(dabrds) == 'b':
+        typer.echo('opening new tab in your default browser')
+        props ={
+            'title': ' '.join(searchstrings)
+        }
+        showInBrowser(props, 'dashboards.html')
 
 
+#######
 @app.command()
 def boards(ctx: typer.Context,
         searchstrings: List[str] = typer.Argument(..., help=searchStringsHelp),

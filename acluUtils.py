@@ -3,6 +3,8 @@ generic utils that use typer
 they're here so any clu can use them 
 """
 
+import os
+import inspect 
 import json 
 import typer
 from typing import List, Dict 
@@ -67,6 +69,19 @@ def readJsonConfigWithComments(configFile: str) -> Dict:
     except Exception as ex:
             typer.echo(f'failed to parse json config in file {configFile}.  error: {ex}')
             return None 
+
+#######
+def getModuleDir() -> str:
+    """
+    TODO: this is a total hack and needs to change 
+    this returns the absolute path of the module that called  getModuleDir()
+    I'm using this to get the path to templates directories in various modules 
+    which I need for the jinja FileSystemLoader 
+    TODO: I should be using proper resource management for templates directories 
+    """
+    abspath = os.path.abspath(inspect.getabsfile(inspect.currentframe().f_back))
+    dirname, filename = os.path.split(abspath)
+    return dirname 
 
 
 ## end of file 

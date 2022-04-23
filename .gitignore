@@ -1,5 +1,8 @@
 
-## I use file sr.py to put random stuff for the repl, no need to track it
+# using tmp files with timestampts for html output to open with webbrowser module.
+tmp_html_*
+
+# I use file sr.py to put random stuff for the repl, no need to track it
 sr.py 
 
 ##

@@ -10,13 +10,18 @@ import inspect
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from typing import List 
 
+from acluUtils import getModuleDir 
+
 env = None 
 
 #######
+def getEnv():
+    return env
+
+
+#######
 def getDefaultTemplateDir() -> str:
-    abspath = os.path.abspath(inspect.getabsfile(inspect.currentframe()))
-    dirname, filename = os.path.split(abspath)
-    return dirname + '/templates' 
+    return getModuleDir() + '/templates' 
 
 #######
 def initEnv(templateDirs: List[str] = None) -> Environment:
@@ -30,6 +35,7 @@ def initEnv(templateDirs: List[str] = None) -> Environment:
     # TODO: check the dirs are valid and don't modify passed in list  
     if templateDirs: templateDirs.append(getDefaultTemplateDir())
     else: templateDirs = getDefaultTemplateDir()
+    print(f'initEnv: templateDirs is {templateDirs}')
     global env 
     env = Environment(
         line_statement_prefix = '#',
