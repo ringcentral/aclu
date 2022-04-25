@@ -83,5 +83,20 @@ def getModuleDir() -> str:
     dirname, filename = os.path.split(abspath)
     return dirname 
 
+#######
+def storeLocals(cmd: str, parms: Dict) -> Dict:
+    """
+    storing the local variables, including their values, on entering a commands function, 
+    enables more generic templating code 
+    we need to exclude the typer.Context parameter though if it exists in locals 
+    """
+    pc = parms.copy()
+    for k,v in pc.items():
+        if 'Context' in str(type(v)): 
+            pc.pop(k)
+            break 
+    locs = {'command': cmd, 'parameters': pc}
+    # typer.echo(json.dumps(locs, indent=4))
+
 
 ## end of file 

@@ -7,7 +7,7 @@ from typing import List, Dict
 from . import app
 import ui 
 from jiraApi import JiraApi 
-from acluUtils import printLongList, getModuleDir  
+from acluUtils import printLongList, getModuleDir, storeLocals   
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
@@ -19,9 +19,15 @@ showInBrowserHelp = "show search results in your default web browser"
 
 #######
 def showInBrowser(props: Dict, template: str) -> None:
+    """
+    it is important to initialize the UI env from here to get the correct templates directory
+    the templates directory in this package has templates specific to this package 
+    do not be tempted to move showInBrowser to utils or the ui package
+    this is why showinBrowser is two lines, once the initEnv is done,
+    anything else can be done in the ui package 
+    """
     ui.initEnv([getModuleDir() + '/templates'])
     ui.openPage(props, template)
-
 
 #######
 @app.command()
@@ -32,6 +38,7 @@ def dashboards(ctx: typer.Context,
         casesensitive: bool = typer.Option(False, "-c", "--casesensitive", help=caseSensitiveHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:
+    locs = storeLocals('dashboards', locals())
     jirapi = ctx.obj 
     searchstrings = list(set(searchstrings))
     if ids:

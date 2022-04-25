@@ -9,11 +9,32 @@ how GETs are done in the future.
 import logging 
 logger = logging.getLogger(__name__)
 
-import requests 
 import json 
+import requests 
+import sys 
 import validators 
 from typing import TypeVar, List, Dict, Tuple 
 StrOrDict = TypeVar('StrOrDict', str, Dict) 
+
+
+#######
+def shallowPrintDict(dct: Dict) -> None:
+    """
+    print the keys at the first level, don't go in to sub dicts or lists or objects or whatnot
+    only print values for strings, bools, and ints.
+    print length of anything supporting the len() method 
+    else print the type and memory size 
+    """
+    try:
+        for k,v in dct.items():
+            if isinstance(v, (int, str, bool)):
+                print(f'key {k}: value {v}')
+            elif hasattr(v, '__len__'):
+                print(f'key {k}: has type {type(v)}, with length {len(v)}')
+            else:
+                print(f'key {k}: has type {type(v)} and memory size {sys.getsizeof(v)}')
+    except Exception as ex:
+        print(f'something bad happened while trying to shallow print dict, errer: {ex}')
 
 
 #######

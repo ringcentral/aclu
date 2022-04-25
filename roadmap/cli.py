@@ -4,10 +4,10 @@
 import typer 
 
 from . import app
-import ui 
 import jiraApi 
+import ui 
 
-
+####### 
 @app.callback(invoke_without_command=True)
 def main(
         configfile: str = typer.Option(None, "-c", "--configfile"),

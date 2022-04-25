@@ -1,4 +1,4 @@
-"""
+"""  aclu/jiraApi/dashboard.py 
 The dashboard is part of the platform thus in theory ban be used by the various Atlassian products 
 We're using it only for the Agile project management 
 """
@@ -42,6 +42,7 @@ class Dashboard:
         self.name = dbrd.get('name')
         self.id = dbrd.get('id')
         self.url = dbrd.get('self') 
+        self.raw = dbrd 
 
     #######
     def __repr__(self):
