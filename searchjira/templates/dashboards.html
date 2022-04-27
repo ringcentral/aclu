@@ -1,15 +1,20 @@
+## aclu/searchjira/templates/dashboards.html 
 # extends "base.html" 
+
+# import "lists.html" as lists 
+
 # block title 
     # if props.title:
         searchjira for dashboards with - {{props.title}}
     # else:
         searchjira for dashboards with - no title given 
     # endif
-# endblock 
+# endblock title  
 #block head 
     {{super()}}
-# endblock 
+# endblock head  
 # block body
+    {{ lists.unordered(props.searchParameters, props.heading )}}
     <p>I'm too sexy for this body</p>
 # endblock 
 

@@ -1,6 +1,7 @@
 """ aclu/searchjira/cli.py 
 """
 
+from datetime import datetime as dt 
 import typer
 from typing import List, Dict 
 
@@ -49,9 +50,15 @@ def dashboards(ctx: typer.Context,
     if showinbrowser or printLongList(dabrds) == 'b':
         typer.echo('opening new tab in your default browser')
         props ={
-            'title': ' '.join(searchstrings)
+            'title': ' '.join(searchstrings),
+            'heading': {
+                'text': 'Search Parameters',
+                'level': 2,
+                'unique': str(dt.timestamp(dt.now()))
+            }
         }
         showInBrowser(props, 'dashboards.html')
+    # if len(dabrds) > 0: dabrds[0].printRaw()
 
 
 #######

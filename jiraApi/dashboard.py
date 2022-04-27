@@ -42,11 +42,15 @@ class Dashboard:
         self.name = dbrd.get('name')
         self.id = dbrd.get('id')
         self.url = dbrd.get('self') 
+        self.view = dbrd.get('view') 
         self.raw = dbrd 
 
     #######
     def __repr__(self):
         return f'Dashboard id: {self.id}, name: {self.name}'
+
+    def printRaw(self):
+        jiraApiUtils.shallowPrintDict(self.raw)
 
 
 ## end of file 

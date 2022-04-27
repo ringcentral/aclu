@@ -1,0 +1,12 @@
+{#  aclu/ui/templates/utils.html
+
+    some generic macros 
+
+#}
+
+# macro createHeading(heading)
+    # set hTag = 'h'~heading.level
+    <{{hTag}} id="{{heading.unique}}"> {{ heading.text }} </{{hTag}}>
+# endmacro 
+
+## end of file 
