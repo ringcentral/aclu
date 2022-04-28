@@ -1,12 +1,25 @@
 {#  aclu/ui/templates/utils.html
-
-    some generic macros 
-
+    collection of smaller elements generally used within other elements
 #}
 
 # macro createHeading(heading)
     # set hTag = 'h'~heading.level
     <{{hTag}} id="{{heading.unique}}"> {{ heading.text }} </{{hTag}}>
 # endmacro 
+
+
+# macro createAnchor(href)
+    <a href="{{href.href}}"> {{href.text}} </a>
+# endmacro
+
+
+# macro strOrHref(data)
+    # if data is string:
+        {{data}}
+    # else: 
+        {{createHref(data)}}
+    # endif
+# endmacro 
+
 
 ## end of file 

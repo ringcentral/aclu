@@ -2,6 +2,7 @@
 # extends "base.html" 
 
 # import "lists.html" as lists 
+# import "utils.html" as utils 
 
 # block title 
     # if props.title:
@@ -15,7 +16,7 @@
 # endblock head  
 # block body
     {{ lists.unordered(props.searchParameters, props.heading )}}
-    <p>I'm too sexy for this body</p>
+    <p> {{utils.strOrHref("I'm too sexy for this body")}} </p>
 # endblock 
 
 ## end of file 

@@ -1,14 +1,15 @@
 """ aclu/searchjira/cli.py 
 """
 
-from datetime import datetime as dt 
+#from datetime import datetime as dt 
 import typer
 from typing import List, Dict 
 
 from . import app
-import ui 
 from jiraApi import JiraApi 
 from acluUtils import printLongList, getModuleDir, storeLocals   
+import ui 
+from ui.propsClasses.utils import Heading 
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
@@ -26,6 +27,7 @@ def showInBrowser(props: Dict, template: str) -> None:
     do not be tempted to move showInBrowser to utils or the ui package
     this is why showinBrowser is two lines, once the initEnv is done,
     anything else can be done in the ui package 
+    this will hopefully go away if/when I implement proper package resource management 
     """
     ui.initEnv([getModuleDir() + '/templates'])
     ui.openPage(props, template)
@@ -49,13 +51,10 @@ def dashboards(ctx: typer.Context,
         dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
     if showinbrowser or printLongList(dabrds) == 'b':
         typer.echo('opening new tab in your default browser')
+        h2 = Heading(2, 'Search Properties')
         props ={
             'title': ' '.join(searchstrings),
-            'heading': {
-                'text': 'Search Parameters',
-                'level': 2,
-                'unique': str(dt.timestamp(dt.now()))
-            }
+            'heading': h2
         }
         showInBrowser(props, 'dashboards.html')
     # if len(dabrds) > 0: dabrds[0].printRaw()
