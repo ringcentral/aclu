@@ -31,6 +31,10 @@ def headings():
     headingList = []
     for lvl in range(0, 8): 
         headingList.append(Heading(level=str(lvl), text=f'Heading with Level: {lvl}'))
+    headingList.append(Heading(className="someClass", level=2, text="heading level 2 with someClass classname"))
+    headingList.append(Heading(className="<someClass>", level=2, text="heading level 2 with <someClass> classname"))
+    headingList.append(Heading(uniqueId="somethingUnique", level=3, text="heading level 3 with somethingUnique for unique"))
+    headingList.append(Heading(uniqueId="'somethingUnique'", level=3, text="heading level 3 with 'somethingUnique' for unique"))
     props ={
         'title': 'Headings Test',
         'headings': headingList

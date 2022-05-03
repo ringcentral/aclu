@@ -6,6 +6,7 @@ I want to keep ui a self contained package and maybe break it out from aclu some
 
 from dataclasses import dataclass
 from datetime import datetime as dt 
+from markupsafe import escape 
 from typing import TypeVar, Dict
 StrOrDict = TypeVar('StrOrDict', str, Dict) 
 
@@ -23,21 +24,22 @@ class BaseElement:
 
     className, OTOH, really is optional thus getting the attribute returns '' if there is no className 
 
-    Unfortunately, by the nature of datablasses with default values, 
+    Unfortunately, by the nature of dataclasses with default values, 
     default values must be givin to the fields in derived classes.
     Those values have been set in a way they will hopefully be caught in testing. 
     """
-    _tagName: str = None 
-    _className: str = None 
-    _unique: str = str(dt.timestamp(dt.now())) 
+    tagName: str = None 
+    className: str = None 
+    uniqueId: str = None 
 
     def getTagName(self):
-        return self._tagName 
+        return escape(self.tagName) 
     def getIdAttribute(self):
-        return f'id="{self.getTagName()}-{self._unique}"'
+        id = escape(self.uniqueId) if self.uniqueId else f'{self.getTagName()}-{str(dt.timestamp(dt.now()))}'
+        return f'id="{id}"'
 
     def getClassAttribute(self):
-        return f'class="{self._className}"' if self._className else '' 
+        return f'class="{escape(self.className)}"' if self.className else '' 
 
 
 @dataclass

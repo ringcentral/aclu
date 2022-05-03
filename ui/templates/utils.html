@@ -9,7 +9,7 @@
 
 
 # macro createAnchor(href)
-    <a href="{{href.href}}"> {{href.text}} </a>
+    <{{href.getTagName()}} href="{{href.href}}"> {{href.text}} </{{href.getTagName()}}>
 # endmacro
 
 
