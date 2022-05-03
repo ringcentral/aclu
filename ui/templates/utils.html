@@ -2,9 +2,9 @@
     collection of smaller elements generally used within other elements
 #}
 
+
 # macro createHeading(heading)
-    # set hTag = 'h'~heading.level
-    <{{hTag}} id="{{heading.unique}}"> {{ heading.text }} </{{hTag}}>
+    <{{heading.getTagName() | safe}} {{heading.getIdAttribute() | safe}} {{heading.getClassAttribute() | safe}}> {{ heading.text }} </{{heading.getTagName() | safe}}>
 # endmacro 
 
 

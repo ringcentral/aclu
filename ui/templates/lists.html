@@ -4,8 +4,17 @@ macros for creating lists
 
 # import "utils.html" as utils
 
-# macro unordered(listItems, heading = none) 
-    # if heading:
+
+{# unordered 
+    generate the HTML for an unordered list
+    The heading parameter is used to associate the list with a heading 
+    If you've already generated the HTML for that heading but 
+    you want the list associated with that heading via an aria_labelledby attribute using the heading id, 
+    pass in the heading but set, well, keep the generateHeading flag as false
+    If you don't want the list associated with any heading, don't pass in a heading 
+#} 
+# macro unordered(listItems, heading = none, generateHeading = false) 
+    # if heading and generateHeading:
         {{ utils.createHeading(heading) }}
     # endif 
 # endmacro 

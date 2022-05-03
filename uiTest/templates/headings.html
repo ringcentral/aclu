@@ -1,0 +1,24 @@
+## aclu/uiTest/templates/headings.html 
+# extends "base.html" 
+
+# import "utils.html" as utils 
+
+# block title 
+    # if props.title:
+        ui test - {{props.title}}
+    # else:
+        ui test - no title given 
+    # endif
+# endblock title  
+#block head 
+    {{super()}}
+# endblock head  
+# block body
+    # for heading in props.headings:
+        {{ utils.createHeading(heading)}}
+        # set pText = "paragraph for heading " ~ heading.text
+        <p> {{utils.strOrHref(pText)}} </p>
+    # endfor  
+# endblock body  
+
+## end of file 
