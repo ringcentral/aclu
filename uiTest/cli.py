@@ -7,7 +7,8 @@ from typing import Dict
 from . import app
 from acluUtils import getModuleDir
 import ui 
-from ui.propsClasses.utils import Heading 
+from ui.elements.lists import UnorderedList, OrderedList, DescriptionList
+from ui.elements.utils import Heading 
 
 
 #######
@@ -22,6 +23,19 @@ def showInBrowser(props: Dict, template: str) -> None:
     """
     ui.initEnv([getModuleDir() + '/templates'])
     ui.openPage(props, template)
+
+
+#######
+@app.command()
+def lists():
+    """
+    we have three types of lists to test, so let's make some coffee:
+    unordered (ul) - stuff we need to make the coffee 
+    ordered (ol) - steps to make the coffee 
+    definition (dl) - some details regarding the supplies 
+    """
+    typer.echo('testing lists')
+
 
 
 #######

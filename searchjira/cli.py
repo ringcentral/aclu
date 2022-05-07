@@ -9,7 +9,7 @@ from . import app
 from jiraApi import JiraApi 
 from acluUtils import printLongList, getModuleDir, storeLocals   
 import ui 
-from ui.propsClasses.utils import Heading 
+from ui.elements.utils import Heading 
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
