@@ -45,7 +45,7 @@ python3 -m venv --prompt aclu .venv
 
 This will create a virtual environment in a .venv directory and your prompt will be prefixed with "(aclu)" once you activate the environment:
 ``` sh
-source ./venv/bin/activate
+source .venv/bin/activate
 ```
 
 With the virtual environment setup, run:

@@ -6,7 +6,7 @@ TL;DR - Python code and jinja2 templates to create accessible HTML.
 
 The UI package comes from a desire to generate HTML that is accessible by default.
 Using jinja2 macros with properties supplied by the application, HTML elements of arbitrary complexity can be created dynamically.
-With those elements, extending the base.html template, and data obtained from any available resource, and application can dynamically render HTML pages.
+With those elements, extending the base.html template, and data obtained from any available resource, and application can dynamically render HTML documents.
 
 ### As Is or Customize
 
@@ -24,9 +24,9 @@ I suppose you could argue the template accesses the data based on its form as cr
 considering we're trying to build generic HTML elements though, it will be the template defining the structure of the props object.
 So how does the application know the format of props?
 
-### Properties Data Classes
+### Elements - Properties Data Classes
 
-For each UI template requiring props data, there is a corresponding class defined in the UI package to generate that data.
+For each UI template macro requiring props data, there is a corresponding class defined in the UI package to generate that data.
 Each class interface is specific to the macro using it, but abstract enough to keep the application from being tightly coupled to a template.
 
 ## Getting Started
@@ -41,4 +41,10 @@ There is a base.html template in the UI an application can extend using the jinj
 
 If you underdstand jinja2, you will likely find the UI package easy to use.
 See [jinja2 template designer documentation](https://jinja.palletsprojects.com/en/latest/templates/)
-for how to write jinja2 templates. 
+for how to write jinja2 templates.
+
+## Examples
+
+See the 
+[uiTest package](../uiTest/)
+package for examples of using the ui package.
