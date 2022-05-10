@@ -8,6 +8,10 @@ The UI package comes from a desire to generate HTML that is accessible by defaul
 Using jinja2 macros with properties supplied by the application, HTML elements of arbitrary complexity can be created dynamically.
 With those elements, extending the base.html template, and data obtained from any available resource, and application can dynamically render HTML documents.
 
+I wanted to keep track of my thoughts during the evolution of this project especially background on some of the decisions and approaches.
+To not clutter the README with my ramblings, I created a 
+[separate md file for those thoughts.](THOUGHTS.md)
+
 ### As Is or Customize
 
 An application can override any part of the UI templates by creating its own templates directories, creating templates in that directory, then passsing that directory to the initEnv function.
