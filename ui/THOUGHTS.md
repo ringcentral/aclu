@@ -26,4 +26,4 @@ But when I wanted to do anything remotely complex in a web environment, my only 
 I'm sure I could use Python on the back end and React for the UI, but why?  So much already exists to bootstrap a React front end with a Node.js backend. 
 
 I learned about a project that was very intentionally back end agnostic,
-{HTMX](https://htmx.org).
+[HTMX](https://htmx.org).
