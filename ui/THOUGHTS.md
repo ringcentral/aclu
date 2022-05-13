@@ -54,11 +54,15 @@ Let's think through those points.
 
 #### More Formatting in the Python Classes?
 
-Currently the classes in the elements package contain the data needed to create the HTML.  A class object is passed to a template where the data is extracted and used to format the text of the HTML element.
+Currently the classes in the elements package contain the data needed to create the HTML.
+A class object is passed to a template where the data is extracted and used to format the text of the HTML element.
 
-I thought, why not just have a __repr__ or __str__ generate the text of the HTML element?  It's a lot easier to debug Python code and would make the templates cleaner.
+I thought, why not just have a __repr__ or __str__ generate the text of the HTML element?
+It's a lot easier to debug Python code and would make the templates cleaner.
 
-However, it also violates the idea of keeping the data and its presentation independent.  Is that important?  After all, the classes explicitly represent data used to generate HTML elements.  Why not have the class itself generate the actual text?
+However, it also violates the idea of keeping the data and its presentation independent.
+Is that important?  After all, the classes explicitly represent data used to generate HTML elements.
+Why not have the class itself generate the actual text?
 
 As I was heading down that path, and thought of other things I might add to the classes, I realized I was starting to implelent jinja.
 
