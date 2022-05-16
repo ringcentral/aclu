@@ -4,27 +4,25 @@ I realize I'm duplicating the definition of StrOrDict here (see acluutils.py
 I want to keep ui a self contained package and maybe break it out from aclu some day )
 """
 
-from dataclasses import dataclass
 from datetime import datetime as dt 
 from markupsafe import escape 
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, Any
 StrOrDict = TypeVar('StrOrDict', str, Dict) 
 
 from .baseElements import BaseElement 
 
-@dataclass
 class Heading(BaseElement):
-    level: int = 1
-    text: str = "ERROR: This is the default text in Heading"
-
-    def getTagName(self):
-        return f'h{self.level}'
-
-@dataclass
-class Href(BaseElement):
-    _tagName: str = "a"
-    href: str = "https://blindgumption.com"
-    text: str = "ERROR: you need to supply text for the anchor"
+    def __init__(self, level: int, contents: Any, **kwArgs):
+        self.level = level
+        ## self.contents = contents 
+        super().__init__(tag=f'h{level}', contents=contents, **kwArgs)
 
 
-    ## end of file 
+class Anchor(BaseElement):
+    def __init__(self, href: str, contents: Any, **kwArgs):
+        self.href = str(escape(href))
+        ## self.contents = contents 
+        super().__init__(tag='a', contents=contents, href=self.href, **kwArgs)
+
+
+## end of file 

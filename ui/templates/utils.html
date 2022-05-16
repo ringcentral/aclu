@@ -4,22 +4,15 @@
 
 
 # macro createHeading(heading)
-    <{{heading.getTagName() | safe}} {{heading.getIdAttribute() | safe}} {{heading.getClassAttribute() | safe}}> {{ heading.text }} </{{heading.getTagName() | safe}}>
+    {{heading}}
+    ## <{{heading.getTagName() | safe}} {{heading.getIdAttribute() | safe}} {{heading.getClassAttribute() | safe}}> {{ heading.text }} </{{heading.getTagName() | safe}}>
 # endmacro 
 
 
-# macro createAnchor(href)
-    <{{href.getTagName()}} href="{{href.href}}"> {{href.text}} </{{href.getTagName()}}>
+# macro createAnchor(anchor)
+    {{anchor}}
+    ## <{{anchor.getTagName()}} href="{{anchor.href}}"> {{anchor.text}} </{{anchor.getTagName()}}>
 # endmacro
-
-
-# macro strOrHref(data)
-    # if data is string:
-        {{data}}
-    # else: 
-        {{createHref(data)}}
-    # endif
-# endmacro 
 
 
 ## end of file 
