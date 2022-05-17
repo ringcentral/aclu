@@ -21,8 +21,16 @@ class Heading(BaseElement):
 class Anchor(BaseElement):
     def __init__(self, href: str, contents: Any, **kwArgs):
         self.href = str(escape(href))
-        ## self.contents = contents 
         super().__init__(tag='a', contents=contents, href=self.href, **kwArgs)
+
+
+class Title(BaseElement):
+    def __init__(self, contents: str, **kwArgs):
+        if not isinstance(contents, str):
+            raise TypeError("Title contents must be a string")
+        self.titleStr = str(escape(contents))
+        super().__init__(tag='title', contents=self.titleStr, **kwArgs)
+
 
 
 ## end of file 
