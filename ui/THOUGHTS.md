@@ -17,7 +17,7 @@ My experience had primarily been focused on backend systems in C, C++, and some 
 I had poked around in Python, JavaScript (with Node.js), and a bit of Ruby.
 I liked to write pure HTML in vim as documentation.
 I had literally no experience developing UIs and knew nothing at all about accessibility.
-After May 2017, I became fully dependent on accessible UIs and learned what it meant to be marginalized.
+After May 2017, I became fully dependent on accessible UIs and learned what it meant to be thoroughly frustrated and at the whims of others.
 So, time to learn to build accessible UIs myself.
 
 As I was learning to code using a screen reader, I was liking Python more and more.
@@ -40,6 +40,8 @@ The app developer will create the templates that use the ui package thus are wel
 ## And Now, the Evolution of the Story
 
 I'll add entries here at heading level 3 with the most recent entries at the end.  The frequency will be arbitrary and each heading will include the date.
+
+If you do start reading from the beginning, the oldest posts, while looking at the code in its latest form, you'll notice there's very little correlation.  The posts were made with regard to how the code was then.  If you're very patient and read all the posts, hopefully it will become clear why the code looks like it does now.
 
 ### 2022-05-11 - Start Simple
 
@@ -106,3 +108,23 @@ I'm not sure though how to work that in, or if that's really the best way to go 
 So, for the time being, list items will be strings or anchors.
 Maybe I'll initially support lists within lists and lists within table cells.
 Time will tell.
+
+### 2022-05-17
+
+The 11th seems so long ago, and so much has changed.  I started off with the simple plan of bailing out on Dataclasses in favor of standard Python classes.  I found I needed to implement the __init__ myself if I want to hide the tags from the higher level classes.  If I'm going to implement __init__, why use Dataclasses?
+
+As I was removing Dataclasses and running in the REPL to unit test the changes, I realized how nice it would be if I could simply type the name of the object just created and it would give me the HTML output.  Ha, okay, I'll put that in the __repr__.  Now I really don't need Dataclasses.
+
+Now I have __repr__ in the BaseElement that works quite well for generating HTML for derived classes.  There are a few places I have needed to override __repr__ but in general, this is working very well.
+
+So, what about jinja?
+
+As I think more about this, and read more about HTML, I realize I could generate HTML documents entirely from these Python classes.  By using __repr__, so each object can generate its own HTML, the objects are very composeable.  That is, I can easily have a <li> with an Anchor object as its contents.  As the ListItem object is generating its HTML, it has the contents object generate its own HTML.  Now I have an <li> element with an <a> as its content and it feels like I got most of that for free.  In fact, <li> can have a <ul> and we easily get lists within lists.
+
+As I looked at the templatey, most notably the jinja macros, I realize I don't need the macros.  And, at least the way I had initially developed them, it would be much more difficult to have elements within elements.
+
+Maybe the right answer is to use very little jinja.  Maybe just supply the base.html document to help lesss HTML technical people (myself included though becoming less so each day) get started.
+
+I need to develop tests for the lists elements.  Maybe as I do that, how much jinja to use will be clearer.
+
+And regarding content categories, my thoughts are now to not include that in any class hierarchy.  I was thinking if I did, I could use types to ensure elements had proper contents.  Maybe that will be useful someday.  For now I'm going to let the site developer worry about which elements are part of another's element's contents.  That is, developing correct HTML is left as an exercise for the reader (well, developer in this case).
