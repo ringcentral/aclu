@@ -8,7 +8,7 @@ from . import app
 from acluUtils import getModuleDir
 import ui 
 from ui.elements.lists import UnorderedList, OrderedList, DescriptionList
-from ui.elements.utils import Heading 
+from ui.elements.utils import Heading, Title, Anchor  
 
 
 #######
@@ -44,13 +44,14 @@ def headings():
     typer.echo('testing heading generation')
     headingList = []
     for lvl in range(0, 8): 
-        headingList.append(Heading(level=str(lvl), text=f'Heading with Level: {lvl}'))
-    headingList.append(Heading(className="someClass", level=2, text="heading level 2 with someClass classname"))
-    headingList.append(Heading(className="<someClass>", level=2, text="heading level 2 with <someClass> classname"))
-    headingList.append(Heading(uniqueId="somethingUnique", level=3, text="heading level 3 with somethingUnique for unique"))
-    headingList.append(Heading(uniqueId="'somethingUnique'", level=3, text="heading level 3 with 'somethingUnique' for unique"))
+        headingList.append(Heading(level=str(lvl), contents=f'Heading with Level: {lvl}'))
+    headingList.append(Heading(level=1, contents=Anchor(href="https://blindgumption.com", contents="Blind Gumption", **{'class':'classValue', 'id':'uniqueId'})))
+    headingList.append(Heading(className="someClass", level=2, contents="heading level 2 with someClass classname"))
+    headingList.append(Heading(className="<someClass>", level=2, contents="heading level 2 with <someClass> classname"))
+    headingList.append(Heading(uniqueId="somethingUnique", level=3, contents="heading level 3 with somethingUnique for unique"))
+    headingList.append(Heading(uniqueId="'somethingUnique'", level=3, contents="heading level 3 with 'somethingUnique' for unique"))
     props ={
-        'title': 'Headings Test',
+        'title': Title(contents='Headings Test'),
         'headings': headingList
     }
     showInBrowser(props, 'headings.html')

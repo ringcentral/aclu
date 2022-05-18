@@ -17,6 +17,20 @@ class BaseElement:
         self.contents = contents
         self.attrs = dict(kwArgs)
 
+    def attrValue(self, attr: str, value: str = None) -> str:
+        """
+        use this to set a value for a single attribute,
+        or to get the value set for the given attribute.
+        if value is None, returns the value of attr in attrs
+        if value is set, adds attr to attrs with given value.
+        if attr already existed in attrs, updates attr in attrs with new value and  returns old value 
+        """ 
+        originalValue = self.attrs.get(attr)
+        if value:
+            self.attrs[attr] = value
+        return originalValue 
+
+
     def getAttributesString(self, inAttrs: Dict = None) -> str:
         """
         in general, this will return the string of the attributes currently set on the element
