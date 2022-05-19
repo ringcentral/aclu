@@ -43,14 +43,36 @@ def lists():
         ListItem("Sugar"),
         ListItem("spoon to stir"),
         ListItem("Liquid level detector, plays 'Small World' when fluid reaches the probes."),
+        ListItem("Hot/near boiling water, from dispenser on counter."),
         ListItem("milk, real or oat, whatever is in the fridge")])
     suppliesList.attrValue('aria-labelledby', suppliesHeading.id())
+    oooHeading = Heading(2, "Order Of Operations")
+    oooList = OrderedList([ListItem("Collect Supplies"),
+            UnorderedList([ListItem("coffee from pantry, 3 packets.  Oh, and the sugar too"),
+                ListItem("mug from drying rack"),
+                ListItem("scissors from 'junk drawer'")]),
+            ListItem("cut tops off coffee packets and empty contents into mug"),
+            ListItem("don't forget to throw empty packets in the trash, and put the scissors back where you found them"),
+            ListItem("pour one scoop of sugar into mug, make sure no one is  watching how much sugar is used, no need to invite commentary from others"),
+            ListItem("add hot water, amount based on listening to how full the mug sounds"),
+            ListItem("put level detector on rim of mug"),
+            ListItem("add 'milk' until hearing high pitched 'Small World'"),
+            ListItem("remove sensor from rim, wipe off probes, put back in drawer"),
+            ListItem("stir"),
+            ListItem("microwave coffee for 1 minute, the 'milk' cooled it down too much"),
+            ListItem("stir again after microwave.  make sure 'milk' is back in the fridge"),
+            ListItem("sit on stool at counter, start podcast, enjoy the coffee")])
+    oooList.attrValue('aria-labelledby', oooHeading.id())
     props = {
         'title': Title(contents='Lists Test'),
         'mainHeading': Heading(1, "Makin' Coffee, the Coffeenator"),
         'supplies': {
             'heading': suppliesHeading,
             'list': suppliesList
+        },
+        'orderOfOps': {
+            'heading': oooHeading,
+            'list': oooList
         }
     }
     showInBrowser(props, 'lists.html')
