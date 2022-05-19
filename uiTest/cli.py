@@ -7,7 +7,7 @@ from typing import Dict
 from . import app
 from acluUtils import getModuleDir
 import ui 
-from ui.elements.lists import UnorderedList, OrderedList, DescriptionList
+from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem 
 from ui.elements.utils import Heading, Title, Anchor  
 
 
@@ -35,6 +35,25 @@ def lists():
     definition (dl) - some details regarding the supplies 
     """
     typer.echo('testing lists')
+    starbucks = Anchor(href="https://www.starbucks.com/menu/at-home-coffee/via-instant", 
+            contents="Starbucks Via instant coffee")
+    suppliesHeading = Heading(2, "Coffee Making Supplies")
+    suppliesList = UnorderedList([ListItem(starbucks),
+        ListItem("knock-over resistant large coffee mug"),
+        ListItem("Sugar"),
+        ListItem("spoon to stir"),
+        ListItem("Liquid level detector, plays 'Small World' when fluid reaches the probes."),
+        ListItem("milk, real or oat, whatever is in the fridge")])
+    suppliesList.attrValue('aria-labelledby', suppliesHeading.id())
+    props = {
+        'title': Title(contents='Lists Test'),
+        'mainHeading': Heading(1, "Makin' Coffee, the Coffeenator"),
+        'supplies': {
+            'heading': suppliesHeading,
+            'list': suppliesList
+        }
+    }
+    showInBrowser(props, 'lists.html')
 
 
 

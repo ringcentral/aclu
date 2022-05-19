@@ -11,6 +11,7 @@ from markupsafe import escape
 class BaseElement:
     """
     BaseElement holds the tag value and a dict of attrivutes      
+    and some methods likely needed by any element 
     """
     def __init__(self, tag: str, contents: Any = None, **kwArgs):
         self.tag = tag
@@ -30,6 +31,20 @@ class BaseElement:
             self.attrs[attr] = value
         return originalValue 
 
+    def id(self, value:str = None) -> str:
+        """
+        id() is separate from attrValue as it's reasonable for the package to generate a unique id for the element.
+        If there is no id in attrs, id() will generate one, add it to attrs and return the value.
+        if the value argument is not None, id() will go through attrValue and return that.
+        """
+        if value:
+            return self.attrValue('id', value)
+        elif (existing := self.attrs.get('id')):
+            return existing
+        else:
+            idValue = f'{self.tag}-{dt.timestamp(dt.now())}'
+            self.attrValue('id', idValue)
+            return idValue 
 
     def getAttributesString(self, inAttrs: Dict = None) -> str:
         """

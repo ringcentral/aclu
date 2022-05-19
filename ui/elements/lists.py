@@ -69,46 +69,46 @@ class BaseList(BaseElement):
     So in this BaseList class, I'm cheating, sort of, and letting the list of entries be Any 
     Since DListItem and ListItem only share object as a common ancestor  
     """
-    def __init__(self, tag: str, **kwArgs):
+    def __init__(self, tag: str, entries: List[Any] = None, **kwArgs):
         self.entries = ListEntries()
+        if entries:
+            for entry in entries:
+                self.entries.append(entry)
         super().__init__(tag=tag, contents=self.entries, **kwArgs)
 
     def addEntry(self, entry: Any) -> None: 
         self.entries.append(entry)
 
+    def addEntries(self, entries: List[Any]) -> None:
+        for entry in entries:
+            self.entries.append(entry)
+
     def entryCount(self) -> int:
         return len(self.entries)
 
-"""
-    def __repr__(self):
-        listString = ''
-        for entry in self.entries:
-            listString += f'{entry}\n'
-        return listString 
-"""
 
 ####### 
 class UnorderedList(BaseList):
-    def __init__(self, **kwArgs):
-        super().__init__(tag='ul', **kwArgs)
+    def __init__(self, entries: List[Any] = None, **kwArgs):
+        super().__init__('ul', entries, **kwArgs)
 
 
 ####### 
 class OrderedList(BaseList):
-    def __init__(self, **kwArgs):
-        super().__init__(tag='ol', **kwArgs)
+    def __init__(self, entries: List[Any] = None, **kwArgs):
+        super().__init__('ol', entries, **kwArgs)
 
 
 ####### 
 class MenuList(BaseList):
-    def __init__(self, **kwArgs):
-        super().__init__(tag='menu', **kwArgs)
+    def __init__(self, entries: List[Any] = None, **kwArgs):
+        super().__init__('menu', entries, **kwArgs)
 
 
 ####### 
 class DescriptionList(BaseList):
-    def __init__(self, **kwArgs):
-        super().__init__(tag='dl', **kwArgs)
+    def __init__(self, entries: List[Any] = None, **kwArgs):
+        super().__init__('dl', entries, **kwArgs)
 
 
 ## end of file 
