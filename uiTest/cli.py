@@ -7,7 +7,7 @@ from typing import Dict
 from . import app
 from acluUtils import getModuleDir
 import ui 
-from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem 
+from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem, DListItem, DesTerm, DesDef  
 from ui.elements.utils import Heading, Title, Anchor  
 
 
@@ -38,13 +38,13 @@ def lists():
     starbucks = Anchor(href="https://www.starbucks.com/menu/at-home-coffee/via-instant", 
             contents="Starbucks Via instant coffee")
     suppliesHeading = Heading(2, "Coffee Making Supplies")
-    suppliesList = UnorderedList([ListItem(starbucks),
-        ListItem("knock-over resistant large coffee mug"),
-        ListItem("Sugar"),
-        ListItem("spoon to stir"),
-        ListItem("Liquid level detector, plays 'Small World' when fluid reaches the probes."),
-        ListItem("Hot/near boiling water, from dispenser on counter."),
-        ListItem("milk, real or oat, whatever is in the fridge")])
+    suppliesList = UnorderedList([ListItem(f'coffee is from {starbucks}'),
+            ListItem("knock-over resistant large coffee mug"),
+            ListItem("Sugar"),
+            ListItem("spoon to stir"),
+            ListItem("Liquid level detector, plays 'Small World' when fluid reaches the probes."),
+            ListItem("Hot/near boiling water, from dispenser on counter."),
+            ListItem("milk, real or oat, whatever is in the fridge")])
     suppliesList.attrValue('aria-labelledby', suppliesHeading.id())
     oooHeading = Heading(2, "Order Of Operations")
     oooList = OrderedList([ListItem("Collect Supplies"),
@@ -63,6 +63,13 @@ def lists():
             ListItem("stir again after microwave.  make sure 'milk' is back in the fridge"),
             ListItem("sit on stool at counter, start podcast, enjoy the coffee")])
     oooList.attrValue('aria-labelledby', oooHeading.id())
+    detailsHeading = Heading(2, "More Details (because I need to test the dl list)")
+    detailsList = DescriptionList([
+            DListItem([DesTerm("The Coffee")], DesDef(f"I get the {starbucks} from Amazon as a subscription in the 50 count packet.  That's about as cheap as I can find it")),
+            DListItem([DesTerm("The Sugar")], DesDef("It's, I think, the Tabago raw sugar from Trader Joe's.  it looks healthy and sounds exotic")),
+            DListItem([DesTerm("Real Milk"), DesTerm("Oat Milk")], DesDef("Why is cow's milk considered 'real'?  Or am I simply calling this out to have multiple <dt> elements for this entry?")),
+            DListItem([DesTerm("Why The List?")], DesDef("I don't like having to use a list for dt elements, I should change that interface"))])
+    detailsList.attrValue('aria-labelledby', detailsHeading.id())
     props = {
         'title': Title(contents='Lists Test'),
         'mainHeading': Heading(1, "Makin' Coffee, the Coffeenator"),
@@ -73,6 +80,10 @@ def lists():
         'orderOfOps': {
             'heading': oooHeading,
             'list': oooList
+        },
+        'details': {
+            'heading': detailsHeading,
+            'list': detailsList
         }
     }
     showInBrowser(props, 'lists.html')
