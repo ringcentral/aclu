@@ -24,6 +24,13 @@ def showInBrowser(props: Dict, template: str) -> None:
     ui.initEnv([getModuleDir() + '/templates'])
     ui.openPage(props, template)
 
+#######
+@app.command()
+def tables():
+    """
+    """
+    typer.echo('testing tables')
+
 
 #######
 @app.command()

@@ -3,11 +3,24 @@ classes in here are meant to be used to build HTML elements
 """
 
 from datetime import datetime as dt 
-from typing import Dict, Any
+from typing import Dict, List, Any
 
 from markupsafe import escape 
 
+####### 
+class ElementList(list):
+    """
+    this class only exists because __repr__ in BaseElement prints the square brackets 
+    when it's generating the HTML for the list objects  
+    """
+    def __repr__(self):
+        listString = ''
+        for entry in self:
+            listString += f'{entry}\n'
+        return listString 
 
+
+#######
 class BaseElement:
     """
     BaseElement holds the tag value and a dict of attrivutes      
@@ -78,6 +91,41 @@ class BaseElement:
     def __repr__(self):
         return f'{self.openingTag()} {self.contents} {self.closingTag()}'
 
+
+#######
+class BaseElementList(BaseElement):
+    """
+    when implementing the list elements (<ol>, <ul>, <dl>, <menu>), I created a BaseList in lists.py 
+    Each of the list elements extended BaseList
+    When implemeting tables, I realized there are many elements whose contents is a list of other elements
+    Thus BaseList is now in baseElements.py as BaseElementList
+    I'm not entirely happy with that name, maybe something better will come to me
+    Regarding the type of objects in the ElementList contained in here,
+    it really should be Baseelement as the idea is it's a list of Elements
+    However, <dl> threw a wrench in the planning
+    <dl> is a list but of two different types of elements
+    In lists.py, there's DListItem used to make <dl> entries look like <li> elements
+    But DListItem is not derived from BaseElement partly because it's not an element,
+    but realisticly, because it doesn't have a tag, and I didn't want to make up one
+    So ElementList can have Any type in it to initially accomodate ListItem and DListItem 
+    and probably more objects like DListItem in the future 
+    """
+    def __init__(self, tag: str, entries: List[Any] = None, **kwArgs):
+        self.entries = ElementList()
+        if entries:
+            for entry in entries:
+                self.entries.append(entry)
+        super().__init__(tag=tag, contents=self.entries, **kwArgs)
+
+    def addEntry(self, entry: Any) -> None: 
+        self.entries.append(entry)
+
+    def addEntries(self, entries: List[Any]) -> None:
+        for entry in entries:
+            self.entries.append(entry)
+
+    def entryCount(self) -> int:
+        return len(self.entries)
 
 
 ## end of file 

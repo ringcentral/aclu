@@ -5,7 +5,7 @@ the list items (including <dt> and <dd>) are defined in here as well.
 
 from typing import List, Any
 
-from .baseElements import BaseElement 
+from .baseElements import BaseElement, BaseElementList 
 from .utils import Anchor, Heading, StrOrDict  
 
 """
@@ -46,67 +46,25 @@ class ListItem(BaseElement):
 
 
 ####### 
-class ListEntries(list):
-    """
-    this class only exists because __repr__ in BaseElement prints the square brackets 
-    when it's generating the HTML for the list objects  
-    """
-    def __repr__(self):
-        listString = ''
-        for entry in self:
-            listString += f'{entry}\n'
-        return listString 
-
-
-####### 
-class BaseList(BaseElement):
-    """
-    <ol>, <ul>, and <menu> are syntactically the same thing (except for tag of course),
-    And semantically they are aggregators of <li> elements with meaning fixed by the type of list.
-    <dl> on the other hand, uses <dt> and <dd> elements which are more complicated
-    The DListItem is an attempt to make list entries for <dl> look like those for the other lists.
-    I didn't want to derive DListItem from BaseElement though as there's no tag, and it's not really an element.
-    So in this BaseList class, I'm cheating, sort of, and letting the list of entries be Any 
-    Since DListItem and ListItem only share object as a common ancestor  
-    """
-    def __init__(self, tag: str, entries: List[Any] = None, **kwArgs):
-        self.entries = ListEntries()
-        if entries:
-            for entry in entries:
-                self.entries.append(entry)
-        super().__init__(tag=tag, contents=self.entries, **kwArgs)
-
-    def addEntry(self, entry: Any) -> None: 
-        self.entries.append(entry)
-
-    def addEntries(self, entries: List[Any]) -> None:
-        for entry in entries:
-            self.entries.append(entry)
-
-    def entryCount(self) -> int:
-        return len(self.entries)
-
-
-####### 
-class UnorderedList(BaseList):
+class UnorderedList(BaseElementList):
     def __init__(self, entries: List[Any] = None, **kwArgs):
         super().__init__('ul', entries, **kwArgs)
 
 
 ####### 
-class OrderedList(BaseList):
+class OrderedList(BaseElementList):
     def __init__(self, entries: List[Any] = None, **kwArgs):
         super().__init__('ol', entries, **kwArgs)
 
 
 ####### 
-class MenuList(BaseList):
+class MenuList(BaseElementList):
     def __init__(self, entries: List[Any] = None, **kwArgs):
         super().__init__('menu', entries, **kwArgs)
 
 
 ####### 
-class DescriptionList(BaseList):
+class DescriptionList(BaseElementList):
     def __init__(self, entries: List[Any] = None, **kwArgs):
         super().__init__('dl', entries, **kwArgs)
 
