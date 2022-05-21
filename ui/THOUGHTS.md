@@ -129,6 +129,6 @@ I need to develop tests for the lists elements.  Maybe as I do that, how much ji
 
 And regarding content categories, my thoughts are now to not include that in any class hierarchy.  I was thinking if I did, I could use types to ensure elements had proper contents.  Maybe that will be useful someday.  For now I'm going to let the site developer worry about which elements are part of another's element's contents.  That is, developing correct HTML is left as an exercise for the reader (well, developer in this case).
 
-<div>dunder scores within div __repr__ and tag \<li\> </div>
+<div>dunder scores within div __repr__ and tag ```<li>``` </div>
 
-<pre>dunder scores within pre __repr__ and tag \<li\> </pre> 
+<pre>dunder scores within pre __repr__ and tag `<li>` </pre> 
