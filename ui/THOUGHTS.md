@@ -121,10 +121,13 @@ So, what about jinja?
 
 As I think more about this, and read more about HTML, I realize I could generate HTML documents entirely from these Python classes.  By using __repr__, so each object can generate its own HTML, the objects are very composeable.  That is, I can easily have a <li> with an Anchor object as its contents.  As the ListItem object is generating its HTML, it has the contents object generate its own HTML.  Now I have an <li> element with an <a> as its content and it feels like I got most of that for free.  In fact, <li> can have a <ul> and we easily get lists within lists.
 
-As I looked at the templatey, most notably the jinja macros, I realize I don't need the macros.  And, at least the way I had initially developed them, it would be much more difficult to have elements within elements.
+As I looked at the template, most notably the jinja macros, I realize I don't need the macros.  And, at least the way I had initially developed them, it would be much more difficult to have elements within elements.
 
 Maybe the right answer is to use very little jinja.  Maybe just supply the base.html document to help lesss HTML technical people (myself included though becoming less so each day) get started.
 
 I need to develop tests for the lists elements.  Maybe as I do that, how much jinja to use will be clearer.
 
 And regarding content categories, my thoughts are now to not include that in any class hierarchy.  I was thinking if I did, I could use types to ensure elements had proper contents.  Maybe that will be useful someday.  For now I'm going to let the site developer worry about which elements are part of another's element's contents.  That is, developing correct HTML is left as an exercise for the reader (well, developer in this case).
+
+<div>dunder scores within div __repr__</div>
+<pre>duncder scores within pre __repr__</pre> 
