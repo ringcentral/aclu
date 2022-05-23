@@ -109,17 +109,17 @@ So, for the time being, list items will be strings or anchors.
 Maybe I'll initially support lists within lists and lists within table cells.
 Time will tell.
 
-### 2022-05-17
+### 2022-05-17 - Goodbye dataclasses, Hello `__repr__`
 
-The 11th seems so long ago, and so much has changed.  I started off with the simple plan of bailing out on Dataclasses in favor of standard Python classes.  I found I needed to implement the __init__ myself if I want to hide the tags from the higher level classes.  If I'm going to implement __init__, why use Dataclasses?
+The 11th seems so long ago, and so much has changed.  I started off with the simple plan of bailing out on Dataclasses in favor of standard Python classes.  I found I needed to implement the `__init__` myself if I want to hide the tags from the higher level classes.  If I'm going to implement `__init__`, why use Dataclasses?
 
-As I was removing Dataclasses and running in the REPL to unit test the changes, I realized how nice it would be if I could simply type the name of the object just created and it would give me the HTML output.  Ha, okay, I'll put that in the __repr__.  Now I really don't need Dataclasses.
+As I was removing Dataclasses and running in the REPL to unit test the changes, I realized how nice it would be if I could simply type the name of the object just created and it would give me the HTML output.  Ha, okay, I'll put that in the `__repr__`.  Now I really don't need Dataclasses.
 
-Now I have __repr__ in the BaseElement that works quite well for generating HTML for derived classes.  There are a few places I have needed to override __repr__ but in general, this is working very well.
+Now I have `__repr__` in the BaseElement that works quite well for generating HTML for derived classes.  There are a few places I have needed to override `__repr__` but in general, this is working very well.
 
 So, what about jinja?
 
-As I think more about this, and read more about HTML, I realize I could generate HTML documents entirely from these Python classes.  By using __repr__, so each object can generate its own HTML, the objects are very composeable.  That is, I can easily have a <li> with an Anchor object as its contents.  As the ListItem object is generating its HTML, it has the contents object generate its own HTML.  Now I have an <li> element with an <a> as its content and it feels like I got most of that for free.  In fact, <li> can have a <ul> and we easily get lists within lists.
+As I think more about this, and read more about HTML, I realize I could generate HTML documents entirely from these Python classes.  By using `__repr__`, so each object can generate its own HTML, the objects are very composeable.  That is, I can easily have a `<li>` with an Anchor object as its contents.  As the ListItem object is generating its HTML, it has the contents object generate its own HTML.  Now I have an `<li>` element with an `<a>` as its content and it feels like I got most of that for free.  In fact, `<li>` can have a `<ul>` and we easily get lists within lists.
 
 As I looked at the template, most notably the jinja macros, I realize I don't need the macros.  And, at least the way I had initially developed them, it would be much more difficult to have elements within elements.
 
@@ -129,9 +129,18 @@ I need to develop tests for the lists elements.  Maybe as I do that, how much ji
 
 And regarding content categories, my thoughts are now to not include that in any class hierarchy.  I was thinking if I did, I could use types to ensure elements had proper contents.  Maybe that will be useful someday.  For now I'm going to let the site developer worry about which elements are part of another's element's contents.  That is, developing correct HTML is left as an exercise for the reader (well, developer in this case).
 
+### 2022-05-22 - It's Not Really an Abstraction (yet?)
 
-back tick only: `__repr__` `<li>` trying inline.
+I've made good progress with the Python classes even having a base class to use for elements whose contents are lists of elements (e.g., `<ul>`, `<table>`).  And there are examples of lists, including a `<ol>` with a `<ul>` as one of its list items.
 
-<div>dunder scores within div __repr__ and tag ```<li>``` </div>
+As I was developing the uiTest code for lists and starting the Table class in elements, I was struggling more with the idea of how much abstraction there should be in creating these HTML elements.  As it exists now, there's very little abstraction.  There's no real difference in using the Python elements vs writing the HTML directly, especially for static HTML.  But the point of the elements package isn't replacing the writing of static HTML.
 
-<pre>dunder scores within pre __repr__ and tag `<li>` </pre> 
+The idea behind the elements package is creating HTML from data retrieved probably due to some event.  Maybe someone has requested information stored in a database, or maybe a third party API needs to be queried.  Yeah, but still, should there be more abstraction from these classes?
+
+I think at this stage the answer is no.  Each class directly reflects the element it creates and the class name is intentionally the element name.  At this level of use, the developer needs to know HTML, including all the attributes and how they work.  There really is nothing being encapsulated.  In the uiTest for lists, I'm even setting the 'aria-labelledby' tag explicitly.
+
+There are methods on the classes to simplify things like adding attributes and having the object create its own unique 'id'.
+
+The goal of having these elements be accessible by default hasn't been an issue yet.  Probably once I get to forms, I might add more enforcement like raising an exception for an input form that doesn't have a programatically associated label.
+
+For tables, I'm not sure if I should enforce the use of `<th>` elements to ensure row and column headers.  If I think of a good way to enforce it, I probably will.  My next post is likely to be regarding how opinionated this package should be.
