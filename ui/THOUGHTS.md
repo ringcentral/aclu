@@ -49,7 +49,7 @@ As of this writing, I already have some basic structure in the ui package.
 There's a templates directory with  base.html with blocks for an app to extend.
 The directory also contains a few html template files with macros to generate elements.
 There are already classes in the elements sub package to represent headings (h1, ..., h6) and the beginning of list elements (ul, ol, dl).
-When I was thinking of what to support as list items, I started thinking more generically about the class hierarchy.
+When I was thinking of what to support as list items, I started thinking more generally about the class hierarchy.
 That is, what should be the type of a list element?
 I was also thinking about moving some functionality from templates to the Python classes.
 Let's think through those points.
@@ -66,7 +66,7 @@ However, it also violates the idea of keeping the data and its presentation inde
 Is that important?  After all, the classes explicitly represent data used to generate HTML elements.
 Why not have the class itself generate the actual text?
 
-As I was heading down that path, and thought of other things I might add to the classes, I realized I was starting to implelent jinja.
+As I was heading down that path, and thought of other things I might add to the classes, I realized I was starting to implement jinja.
 
 So, for now at least, the macros in the templates will generate the HTML text and the classes will focus on holding the data for those macros.
 
@@ -144,3 +144,32 @@ There are methods on the classes to simplify things like adding attributes and h
 The goal of having these elements be accessible by default hasn't been an issue yet.  Probably once I get to forms, I might add more enforcement like raising an exception for an input form that doesn't have a programatically associated label.
 
 For tables, I'm not sure if I should enforce the use of `<th>` elements to ensure row and column headers.  If I think of a good way to enforce it, I probably will.  My next post is likely to be regarding how opinionated this package should be.
+
+### 2022-06-01 - Introducing Builders
+
+As noted in the previous post, I was questioning the point of these classes to generate HTML elements.
+I had decided to have each class generate its own HTML text and I wasn't providing any abstractions in the classes.
+I think the classes still have value for the creation of HTML with dynamic data.
+But where do I start to simplify and enforce accessible practices?
+
+I think I've found it in tables.
+While creating the table related elements, I started working on example code in the uiTest package.
+I wanted to collect a bunch of tabular data and iterate through it to create the `<tr>` and `<td>s and `<th>` elements.
+I was using a generic Python dict for that.
+
+As I found myself deciding how to structure that dict, I realized I ought to be creating some kind of generic structure to hold tabular data.
+And I realized this might be a good place to try dataclasses again.
+Thus the TableInfo class was born.
+
+This also got me to thinking there is a higher level useful abstraction in building more complicated HTML structures.
+Let's face it, anchors, headings, and lists are straight forward.
+Tables are conceptionly easy to understand, but making them more accessible requires a little extra effort.
+So within the TableInfo class, a developer can add rows and explicitly set the names of the columns, or let the object infer the column names, and the object itself will spit out the Table element for inclusion in a template.
+
+The TableInfo class is defined within a sub package named builders.
+Classes in builders are intended to be used to collect the data needed to create more complicated structures and be able to generate the HTML for that structure.
+Builder classes won't necessarily generate standard HTML elements like a table, though that is one use case.
+Something like a collection of form controls to generate HTML for, say, a specific question for a questionnaire.
+Though that might be wrapped in a form element or fieldset.
+The builders idea is still forming in my head.
+I'm pretty happy with how it's working with tables, we'll see where it leads.
