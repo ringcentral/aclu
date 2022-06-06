@@ -10,6 +10,8 @@ import ui
 from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem, DListItem, DesTerm, DesDef  
 from ui.elements.utils import Heading, Title, Anchor  
 
+from uiTest.elementsMdn import getElementsData
+
 
 #######
 def showInBrowser(props: Dict, template: str) -> None:
@@ -23,6 +25,15 @@ def showInBrowser(props: Dict, template: str) -> None:
     """
     ui.initEnv([getModuleDir() + '/templates'])
     ui.openPage(props, template)
+
+
+#######
+@app.command()
+def elements(outputfile:str = typer.Option("elementsData.html", "-o", "--outputfile")) -> None:
+    typer.echo(f'using output file: {outputfile}')
+    if getElementsData(outputfile):
+        typer.echo('successfully scraped elements reference data')
+
 
 #######
 @app.command()

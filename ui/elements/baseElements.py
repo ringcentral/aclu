@@ -1,5 +1,7 @@
 """  aclu/ui/elements/baseElements.py
 classes in here are meant to be used to build HTML elements
+most of the functionality of an element can be in the base class
+The derived classes are mostly responsible for setting the appropriate tag string value 
 """
 
 from datetime import datetime as dt 
@@ -105,27 +107,24 @@ class BaseElementList(BaseElement):
     However, <dl> threw a wrench in the planning
     <dl> is a list but of two different types of elements
     In lists.py, there's DListItem used to make <dl> entries look like <li> elements
-    But DListItem is not derived from BaseElement partly because it's not an element,
-    but realisticly, because it doesn't have a tag, and I didn't want to make up one
+    But DListItem is not derived from BaseElement because it's not an element,
+    and it doesn't have a tag, and I didn't want to make up one
     So ElementList can have Any type in it to initially accomodate ListItem and DListItem 
+    And other elements like tr and label and input 
     and probably more objects like DListItem in the future 
     """
-    def __init__(self, tag: str, entries: List[Any] = None, **kwArgs):
-        self.entries = ElementList()
-        if entries:
-            for entry in entries:
-                self.entries.append(entry)
-        super().__init__(tag=tag, contents=self.entries, **kwArgs)
+    def __init__(self, tag: str, elements: List[Any] = None, **kwArgs):
+        self.elements = ElementList(elements) if elements else ElementList([])
+        super().__init__(tag, self.elements, **kwArgs)
 
-    def addEntry(self, entry: Any) -> None: 
-        self.entries.append(entry)
+    def addElement(self, elem: Any) -> None: 
+        self.elements.append(elem)
 
-    def addEntries(self, entries: List[Any]) -> None:
-        for entry in entries:
-            self.entries.append(entry)
+    def addElements(self, elements: List[Any]) -> None:
+        self.elements += ElementList(elements)
 
-    def entryCount(self) -> int:
-        return len(self.entries)
+    def elementCount(self) -> int:
+        return len(self.elements)
 
 
 ## end of file 
