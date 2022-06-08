@@ -11,19 +11,28 @@ StrOrDict = TypeVar('StrOrDict', str, Dict)
 
 from .baseElements import BaseElement 
 
-class Heading(BaseElement):
-    def __init__(self, level: int, contents: Any, **kwArgs):
-        self.level = level
-        ## self.contents = contents 
-        super().__init__(tag=f'h{level}', contents=contents, **kwArgs)
 
-
+####### 
 class Anchor(BaseElement):
     def __init__(self, href: str, contents: Any, **kwArgs):
         self.href = str(escape(href))
         super().__init__(tag='a', contents=contents, href=self.href, **kwArgs)
 
 
+####### 
+class Heading(BaseElement):
+    def __init__(self, level: int, contents: Any, **kwArgs):
+        self.level = level
+        super().__init__(tag=f'h{level}', contents=contents, **kwArgs)
+
+
+####### 
+class Paragraph(BaseElement):
+    def __init__(self, contents: Any, **kwArgs):
+        super().__init__(tag='p', contents=contents, **kwArgs)
+
+
+####### 
 class Title(BaseElement):
     def __init__(self, contents: str, **kwArgs):
         if not isinstance(contents, str):

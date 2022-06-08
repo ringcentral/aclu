@@ -8,7 +8,7 @@ from . import app
 from acluUtils import getModuleDir
 import ui 
 from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem, DListItem, DesTerm, DesDef  
-from ui.elements.utils import Heading, Title, Anchor  
+from ui.elements.utils import Heading, Title, Anchor, Paragraph   
 from ui.builders.tableBuilder import TableInfo 
 from uiTest.elementsMdn import getElementsTables, mdnAnchor 
 
@@ -40,7 +40,8 @@ def elements(outputfile:str = typer.Option("elementsData.html", "-o", "--outputf
     if not currentElementsTable or not deprecatedElementsTable:
         elements.append(Heading(1, 'failed to scrape elements from {mdnAnchor}'))
     else:
-        elements.append(Heading(1,f'Tables of HTML Elements scraped from {mdnAnchor}'))
+        elements.append(Heading(1,'Tables of HTML Elements '))
+        elements.append(Paragraph(f'Information in the below tables was scraped from {mdnAnchor}.'))
         elements.append(Heading(2, 'Currently Supported HTML Elements'))
         elements.append(currentElementsTable.getTable())
         elements.append(Heading(2, 'Deprecated HTML Elements'))

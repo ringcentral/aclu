@@ -91,8 +91,8 @@ def getElementsTables(outfile:str) -> Tuple[TableInfo, TableInfo]:
         print(f'number of element references is {len(elems)}')
         # we have links to each element, 
         # time to scrape each page and create rows for each element 
-        currentElementsTable = TableInfo(caption=f'Current Elements from {mdnAnchor}', rowHeadingName='Element')
-        deprecatedElementsTable = TableInfo(caption=f'Deprecated Elements from {mdnAnchor}', rowHeadingName='Element')
+        currentElementsTable = TableInfo(caption='Current HTML Elements', rowHeadingName='Element')
+        deprecatedElementsTable = TableInfo(caption='Deprecated HTML Elements', rowHeadingName='Element')
         for elmPath in elems:
             elmUrl = f'{mdnHostUrlBase}{elmPath}'
             elmName = path.split(elmUrl)[1]  
