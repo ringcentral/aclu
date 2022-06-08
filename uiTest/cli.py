@@ -9,8 +9,8 @@ from acluUtils import getModuleDir
 import ui 
 from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem, DListItem, DesTerm, DesDef  
 from ui.elements.utils import Heading, Title, Anchor  
-
-from uiTest.elementsMdn import getElementsData
+from ui.builders.tableBuilder import TableInfo 
+from uiTest.elementsMdn import getElementsTables, mdnAnchor 
 
 
 #######
@@ -30,17 +30,26 @@ def showInBrowser(props: Dict, template: str) -> None:
 #######
 @app.command()
 def elements(outputfile:str = typer.Option("elementsData.html", "-o", "--outputfile")) -> None:
+    """
+    elements is used to test Table and the tableBuilder
+    it will scrape HTML element reference info from MDN and present it in a table 
+    """
     typer.echo(f'using output file: {outputfile}')
-    if getElementsData(outputfile):
-        typer.echo('successfully scraped elements reference data')
-
-
-#######
-@app.command()
-def tables():
-    """
-    """
-    typer.echo('testing tables')
+    elements = []
+    (currentElementsTable, deprecatedElementsTable) = getElementsTables(outputfile)
+    if not currentElementsTable or not deprecatedElementsTable:
+        elements.append(Heading(1, 'failed to scrape elements from {mdnAnchor}'))
+    else:
+        elements.append(Heading(1,f'Tables of HTML Elements scraped from {mdnAnchor}'))
+        elements.append(Heading(2, 'Currently Supported HTML Elements'))
+        elements.append(currentElementsTable.getTable())
+        elements.append(Heading(2, 'Deprecated HTML Elements'))
+        elements.append(deprecatedElementsTable.getTable())
+    props ={
+        'title': Title('HTML Elements Reference from MDN'),
+        'elements': elements
+    }
+    showInBrowser(props, 'listOfElements.html')
 
 
 #######
@@ -105,7 +114,6 @@ def lists():
         }
     }
     showInBrowser(props, 'lists.html')
-
 
 
 #######

@@ -117,8 +117,11 @@ class BaseElementList(BaseElement):
         self.elements = ElementList(elements) if elements else ElementList([])
         super().__init__(tag, self.elements, **kwArgs)
 
-    def addElement(self, elem: Any) -> None: 
-        self.elements.append(elem)
+    def addElement(self, elem: Any, front: bool = False) -> None: 
+        if front:
+            self.elements.insert(0, elem)
+        else:
+            self.elements.append(elem)
 
     def addElements(self, elements: List[Any]) -> None:
         self.elements += ElementList(elements)

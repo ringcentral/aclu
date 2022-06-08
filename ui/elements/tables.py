@@ -100,5 +100,19 @@ class Table(BaseElementList):
         self.caption = caption
         super().__init__('table', elements, **kwArgs)
 
+    def __repr__(self):
+        """
+        to make caption a required element, I had to call it out  explicitly in the Table class.
+        This keeps it from being part of the elements list in the base class.
+        And that keeps it from being rendered in __repr__ of the base class.
+        Table temporarily adds caption to the front of elements then pops it off after rendering
+        It needs to be temporary in case the table is rendered multiple times
+        """
+        self.addElement(self.caption, front=True)
+        repr = super().__repr__()
+        self.elements.pop(0)
+        return repr 
+        self.addElement(self.caption, front=True)
+
 
 ## end of file 

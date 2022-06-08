@@ -1,0 +1,25 @@
+{# aclu/ui/templates/listOfElements.html
+
+    with the ui/elements classes rendering themselves via __repr__(),
+    I can create all the HTML in Python classes and pass the list of objects in props
+    then all the template has to do is iterate through that list and evaluate each element wit {{}}
+#}
+# extends "base.html" 
+
+# block title 
+    # if props.title:
+        {{props.title | safe}}
+    # else:
+        {{super()}}
+    # endif
+# endblock title  
+#block head 
+    {{super()}}
+# endblock head  
+# block body
+    # for element in props.elements:
+        {{element | safe}}
+    # endfor  
+# endblock body  
+
+## end of file 

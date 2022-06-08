@@ -12,21 +12,32 @@ The complete TableInfo is returned to be included in who knows/cares what.
 import logging 
 logger = logging.getLogger(__name__)
 
+from os import path 
+
 from bs4 import BeautifulSoup as BSoup 
 from bs4.element import Tag 
-import json 
-from os import path 
+from markupsafe import escape 
 import requests 
-from typing import Dict 
+from typing import Dict, Tuple  
 
 from ui.elements.utils import Anchor
 from ui.builders.tableBuilder  import TableInfo, RowInfo 
 
 
+mdnLocalPathPrefix = "/en-US/docs/Web"
 elementsReferencePath = "/en-US/docs/Web/HTML/Element"
-elementsReferenceBase = f"https://developer.mozilla.org"
-elementsReferenceUrl = f"{elementsReferenceBase}{elementsReferencePath}"
+mdnHostUrlBase = f"https://developer.mozilla.org"
+elementsReferenceUrl = f"{mdnHostUrlBase}{elementsReferencePath}"
 mdnAnchor = Anchor(elementsReferenceUrl, "HTML elements reference page on Mozilla Developer Network (MDN)")
+
+
+#######
+def updateLocalAnchorHref(tag: Tag) -> BSoup:
+    anchors = tag.find_all('a')
+    for a in anchors:
+        href = a.get('href')
+        if href and href.startswith(mdnLocalPathPrefix):
+            a['href'] = f'{mdnHostUrlBase}{href}'
 
 
 #######
@@ -48,11 +59,12 @@ def filterAnchor(anchor: Tag) -> bool:
 
 #######
 def getElementSummary(soup: BSoup) -> Dict:
+    """the summary is in the first <p> element immediately after the only <h1> element in the doc
     """
-    the summary is in the first <p> element immediately after the only <h1> element in the doc
-    """
-    summary = soup.find('h1').next_sibling.text 
-    return  {'summary': summary}
+    summary = soup.find('h1').next_sibling.find('p')
+    updateLocalAnchorHref(summary)
+    ## summary = str(escape(summary.encode())) 
+    return  {'Summary': summary.decode()}
 
 
 #######
@@ -69,7 +81,7 @@ def getElementInfo(name: str, url: str) -> Dict:
 
 
 #######
-def getElementsData(outfile:str) -> None:
+def getElementsTables(outfile:str) -> Tuple[TableInfo, TableInfo]:
     try:
         refPage = requests.get(elementsReferenceUrl)
         soup = BSoup(refPage.content, 'html.parser')
@@ -79,20 +91,26 @@ def getElementsData(outfile:str) -> None:
         print(f'number of element references is {len(elems)}')
         # we have links to each element, 
         # time to scrape each page and create rows for each element 
-        table = TableInfo(caption=f'HTML element data scraped from {mdnAnchor}', rowHeadingName='Element')
+        currentElementsTable = TableInfo(caption=f'Current Elements from {mdnAnchor}', rowHeadingName='Element')
+        deprecatedElementsTable = TableInfo(caption=f'Deprecated Elements from {mdnAnchor}', rowHeadingName='Element')
         for elmPath in elems:
-            elmUrl = f'{elementsReferenceBase}{elmPath}'
+            elmUrl = f'{mdnHostUrlBase}{elmPath}'
             elmName = path.split(elmUrl)[1]  
             rowEntries = getElementInfo(elmName, elmUrl)
             row = RowInfo(Anchor(elmUrl, elmName), rowEntries)
-            table.addRow(row)
+            if 'Deprecated' in rowEntries.get('Summary'):
+                deprecatedElementsTable.addRow(row)
+            else:
+                currentElementsTable.addRow(row)
         with open(outfile, 'w') as of:
-            tsp = BSoup(str(table.getTable()), "html.parser") 
+            tsp = BSoup(str(currentElementsTable.getTable()), "html.parser") 
+            of.write(tsp.prettify())
+            tsp = BSoup(str(deprecatedElementsTable.getTable()), "html.parser") 
             of.write(tsp.prettify())
     except Exception as exc:
         logger.exception("something bad happened while scraping MDN")
-        return False 
-    return True 
+        return (None, None)
+    return (currentElementsTable, deprecatedElementsTable)
 
 
 ## end of file 
