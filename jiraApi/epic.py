@@ -1,40 +1,65 @@
-"""
+"""  aclu/jiraApi/epic.py 
 representing an epic resource from Jira 
+
+Jira Epic resources are extensions of Jira Issue resources.
+From that, I thought Epic should derive from Issue.
+But a REST resource being an extension of another REST resource doesn't imply derivation in a clean OO sense.
+The resources are different enough it made more sense to have the Epic contain an Issue and act 
+more like a proxy to the underlying Issue resource. 
 """
 
 import logging
 logger = logging.getLogger(__name__)
 
-from . import jiraApiUtils
+from typing import Dict 
 
-class Epic:
-    def __init__(self, ep, jiraUrl: str = None, getAllIssues: bool = False):
-        """
-        like in Board(), ep can be either an Id of a Jira epic, or 
-        a dict already GET'ed from Jira 
-        """
-        if isinstance(ep, str):  # ep is an epic Id
-            url = f'{jiraUrl}/epic/{ep}'
-            _, ep = jiraApiUtils.getResource(url, convertPayload=True)
-        if ep == None:
-            raise ValueError('invalid input to Epic')
+from . import jiraApiUtils
+from .resourceBase import ResourceBase 
+from .issue import Issue 
+
+#######
+class Epic(ResourceBase):
+
+    #####
+    @classmethod
+    def getEpic(cls, epicId: str) -> object:
+        url = f'{jiraApiUtils.agileUrl}/epic/{epicId}'
+        return super().get(url, f'epic/{epicId}')
+
+    #####
+    def __init__(self, ep: Dict, getAllIssues: bool = False):
         self.id = ep.get('id')
         self.name = ep.get('name')
         self.key = ep.get('key')
         self.summary = ep.get('summary')
         self.done = ep.get('done')
         self.url = ep.get('self')
+        self.raw = ep 
         # do one query to learn how many issues are on this epic
         self.issuesList = []
         self.issuesCount = 0
-        _, issues = jiraApiUtils.getResource(
-            f'{self.url}/issue?maxResults=1', convertPayload=True)
+        _, issues = jiraApiUtils.getResource(f'{self.url}/issue?maxResults=1', convertPayload=True)
         if issues:
             self.issuesCount = issues.get('total')
         else:
             logger.warning(f'failed to get list of issues for epic {self.id}, {self.key}')
 
-    #######
+    #####
+    def getDetails(self) -> Dict:
+        """
+        In Jira, an epic is an issue with extra info
+        it possibly has many custom fields which are stored in the associated Issue 
+        get the Issue with those custom fields and generate a dict with the:
+        name of the field,
+        the value in the field
+        the type of the field 
+        and the id of the custom field 
+        only do this for fields that have data, there are possibly hundredes of fields we don't care about, and are empty 
+        """
+        self.issue = Issue.getIssue(self.key, details=True)
+
+
+    #####
     def __repr__(self):
         return (
             f'\n####### epic name: {self.name}, key: {self.key}, issue count: {self.issuesCount}, done: {self.done}'
@@ -42,4 +67,4 @@ class Epic:
         )
 
 
-# end of file
+## end of file

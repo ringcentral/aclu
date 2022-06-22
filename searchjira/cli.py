@@ -9,7 +9,10 @@ from . import app
 from jiraApi import JiraApi 
 from acluUtils import printLongList, getModuleDir, storeLocals   
 import ui 
-from ui.elements.utils import Heading 
+from ui.elements.utils import Heading, Anchor, Paragraph   
+from ui.elements.tables import Caption 
+from ui.builders.tableBuilder import TableInfo, RowInfo 
+
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
@@ -51,13 +54,22 @@ def dashboards(ctx: typer.Context,
         dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
     if showinbrowser or printLongList(dabrds) == 'b':
         typer.echo('opening new tab in your default browser')
-        h2 = Heading(2, 'Search Properties')
+        table = TableInfo(Caption(f'Found {len(dabrds)} dashboards'), rowHeadingName='dashboard name, click to view in Jira')
+        for db in dabrds:
+            name = db.name
+            href = db.view
+            row = RowInfo(heading=Anchor(href, name))
+            table.addRow(row)
+        elements =[]
+        elements.append(Heading(2, 'Search Properties'))
+        elements.append(Paragraph(f'{locs}'))
+        elements.append(table.getTable())
         props ={
             'title': ' '.join(searchstrings),
-            'heading': h2
+            'elements': elements
         }
-        showInBrowser(props, 'dashboards.html')
-    # if len(dabrds) > 0: dabrds[0].printRaw()
+        showInBrowser(props, 'listOfElements.html')
+    ## if len(dabrds) > 0: dabrds[0].printRaw()
 
 
 #######

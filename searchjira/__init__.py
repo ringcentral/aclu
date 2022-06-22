@@ -5,7 +5,6 @@ import typer
 app = typer.Typer()
 app_name = "searchjira"
 
-# any @app.command functions need to be inmported here
 from .cli import main
 
 

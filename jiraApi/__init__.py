@@ -9,25 +9,32 @@ logger = logging.getLogger(__name__)
 import os 
 from typing import List, Dict  
 
-from .jiraApiUtils import StrOrDict
 from . import jiraApiUtils 
 from .board import Board 
 from .dashboard import Dashboard 
+from .epic import Epic 
+from .issue import Issue 
 
 
 #######
 class JiraApi:
+    user: str = None
+    password: str = None 
+    baseUrl:str = None 
+    platformUrl: str = None
+    agileUrl: str = None 
     def __init__(self, user: str = None, password: str = None, baseUrl: str = None):
-        self.user = user if user else os.getenv('JIRA_USER')
-        self.password = password if password else os.getenv('JIRA_PW')
+        JiraApi.user = user if user else os.getenv('JIRA_USER')
+        JiraApi.password = password if password else os.getenv('JIRA_PW')
         if self.user is None or self.password is None :
             raise ValueError('JiraApi must have a user and password') 
         jiraApiUtils.setJiraCreds((self.user, self.password))
-        self.baseUrl = baseUrl if baseUrl else os.getenv('JIRA_BASE_URL')
-        self.platformUrl = jiraApiUtils.buildUrl(self.baseUrl, 'rest/api/latest')
-        self.agileUrl = jiraApiUtils.buildUrl(self.baseUrl, 'rest/agile/latest')
+        JiraApi.baseUrl = baseUrl if baseUrl else os.getenv('JIRA_BASE_URL')
+        JiraApi.platformUrl = jiraApiUtils.buildUrl(self.baseUrl, 'rest/api/latest')
+        JiraApi.agileUrl = jiraApiUtils.buildUrl(self.baseUrl, 'rest/agile/latest')
         if self.platformUrl is None or self.agileUrl is None:
             raise ValueError(f'baseUrl must have ben invalid, value is {self.baseUrl}')
+        jiraApiUtils.setApiUrls(self.platformUrl, self.agileUrl)
         logger.info(f"user is {self.user}, baseUrl is {self.baseUrl}")
 
     def __repr__(self):
@@ -36,10 +43,10 @@ class JiraApi:
     def findDashboards(self, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dashboard]:
         searchList = list(set(searchList))
         tbrds = jiraApiUtils.getPaginatedResources(f'{self.platformUrl}/dashboard', searchList, containsAll, caseSensitive, maxResults, pageSize)
-        return [self.getDashboard(brd) for brd in tbrds]
+        return [Dashboard(brd) for brd in tbrds]
 
-    def getDashboard(self, dbrd: StrOrDict) -> Dashboard:
-        return Dashboard.getDashboard(dbrd, self.platformUrl)
+    def getDashboard(self, dashboardId: str) -> Dashboard:
+        return Dashboard.getDashboard(dashboardId)
 
     def getBoardTypeCounts(self) -> Dict:
         """
@@ -56,11 +63,19 @@ class JiraApi:
 
 
     def findBoards(self, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Board]:
+        searchList = list(set(searchList))
         tbrds = jiraApiUtils.getPaginatedResources(f'{self.agileUrl}/board', searchList, containsAll, caseSensitive, maxResults, pageSize)
-        return [self.getBoard(brd) for brd in tbrds]
+        return [Board(brd) for brd in tbrds]
 
-    def getBoard(self, brd: StrOrDict) -> Board:
-        return Board.getBoard(brd, self.agileUrl)
+    def getBoard(self, boardId: str) -> Board:
+        return Board.getBoard(boardId)
+
+
+    def getEpic(self, epicId: str) -> Epic:
+        return Epic.getEpic(epicId)
+
+    def getIssue(self, issueId: str) -> Issue:
+        return Issue.getIssue(issueId)
 
 
 ## end of file 

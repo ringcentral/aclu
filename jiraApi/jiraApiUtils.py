@@ -4,6 +4,9 @@ also code for structures common across different Atlassian APIs
 
 And moved requests here in case I want to change 
 how GETs are done in the future.
+
+And, frankly, adding stuff here that really should be better structured into classes, maybe singletons, like a config 
+-- exposing API URLs here since it turns out some of the classes for the resources need the URLs (Epic to get an Issue)
 """
 
 import logging 
@@ -16,6 +19,16 @@ import validators
 from typing import TypeVar, List, Dict, Tuple 
 StrOrDict = TypeVar('StrOrDict', str, Dict) 
 
+
+#######
+# exposing API URLs for other classes to access 
+platformUrl = None 
+agileUrl = None 
+def setApiUrls(platform: str, agile: str) -> None:
+    global platformUrl 
+    platformUrl = platform 
+    global agileUrl 
+    agileUrl = agile 
 
 #######
 def shallowPrintDict(dct: Dict) -> None:
@@ -67,12 +80,13 @@ def getObjectFromJsonString(jstr: str) -> object:
 
 
 #######
-# use builtins any and all to dtermine if 
-# any/all of the strings in searchList appears in the 'name' of the value
-# containsall True means all the strings in searchList must appear in the name 
-# else at least one of the strings in searchList must appear in the name 
-# # 
 def searchNamesInValues(values: list[Dict], searchList: List[str], containsAll: bool = False, caseSensitive: bool = False) -> List[Dict]:
+    """
+    use builtins any and all to dtermine if 
+    any/all of the strings in searchList appears in the 'name' of the value
+    containsall True means all the strings in searchList must appear in the name 
+    else at least one of the strings in searchList must appear in the name 
+    """
     if values is None or searchList is None: return values 
     ret = []
     searchfor = all if containsAll else any 
