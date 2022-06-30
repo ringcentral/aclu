@@ -9,7 +9,7 @@ from acluUtils import getModuleDir
 import ui 
 from ui.elements.lists import UnorderedList, OrderedList, DescriptionList, ListItem, DListItem, DesTerm, DesDef  
 from ui.elements.utils import Heading, Title, Anchor, Paragraph   
-from ui.builders.tableBuilder import TableInfo 
+from ui.builders.tableBuilder import TableInfo, createTableFromDicts  
 from uiTest.elementsMdn import getElementsTables, mdnAnchor 
 
 
@@ -51,6 +51,33 @@ def elements(outputfile:str = typer.Option("elementsData.html", "-o", "--outputf
         'elements': elements
     }
     showInBrowser(props, 'listOfElements.html')
+
+#######
+@app.command()
+def ctfd(
+        lower: int = typer.Option(1, "-l", "--lower"),
+        upper: int = typer.Option(10, "-u", "--upper")
+):
+    """
+    to test the createTableFromDicts function from tableBuilder 
+    """
+    rows = []
+    for x in range(lower,upper + 1):
+        row = {'base': x}
+        row.update(dict([(y, x**y) for y in range(lower, upper + 1)]))
+        rows.append(row)
+    ## we have a matrix, now display it in an HTML table 
+    table = createTableFromDicts('base number raised to column heading number', rows)
+    elements = []
+    elements.append(Heading(1,'Testing createTableFromDicts function in tableBuilder'))
+    elements.append(Heading(2, 'Raise base to power (column heading number)'))
+    elements.append(table)
+    props ={
+        'title': Title('Testing createTableFromDicts in tableBuilder'),
+        'elements': elements
+    }
+    showInBrowser(props, 'listOfElements.html')
+
 
 
 #######
