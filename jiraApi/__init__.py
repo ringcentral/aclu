@@ -34,7 +34,7 @@ class JiraApi:
         JiraApi.agileUrl = jiraApiUtils.buildUrl(self.baseUrl, 'rest/agile/latest')
         if self.platformUrl is None or self.agileUrl is None:
             raise ValueError(f'baseUrl must have ben invalid, value is {self.baseUrl}')
-        jiraApiUtils.setApiUrls(self.platformUrl, self.agileUrl)
+        jiraApiUtils.setApiUrls(self.baseUrl, self.platformUrl, self.agileUrl)
         logger.info(f"user is {self.user}, baseUrl is {self.baseUrl}")
 
     def __repr__(self):

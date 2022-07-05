@@ -22,9 +22,12 @@ StrOrDict = TypeVar('StrOrDict', str, Dict)
 
 #######
 # exposing API URLs for other classes to access 
+baseUrl = None 
 platformUrl = None 
 agileUrl = None 
-def setApiUrls(platform: str, agile: str) -> None:
+def setApiUrls(base: str, platform: str, agile: str) -> None:
+    global baseUrl 
+    baseUrl = base 
     global platformUrl 
     platformUrl = platform 
     global agileUrl 

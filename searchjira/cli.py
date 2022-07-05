@@ -6,16 +6,18 @@ import typer
 from typing import List, Dict 
 
 from . import app
-from jiraApi import JiraApi 
+from jiraApi import JiraApi, Issue  
 from acluUtils import printLongList, getModuleDir, storeLocals   
 import ui 
 from ui.elements.utils import Heading, Anchor, Paragraph   
 from ui.elements.tables import Caption 
-from ui.builders.tableBuilder import TableInfo, RowInfo 
+from ui.builders.tableBuilder import TableInfo, RowInfo, createTableFromDicts  
 
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
+issueIdsHelp = "id, or key, of Jira issues.  Must match exactly, this is not a search, it is a GET operation"
+detailsHelp = "True if you want details for requested resources"
 idsHelp = "search strings are IDs of resources, much faster if you know what you're looking for"
 containsAllHelp = "flag to indicate match all search words, default is to match any search word. "
 caseSensitiveHelp = "flag to make search case sensitive"
@@ -93,6 +95,46 @@ def boards(ctx: typer.Context,
         typer.echo('soon...')
 
 
+#######
+@app.command()
+def issues(ctx: typer.Context,
+        issueids: List[str] = typer.Argument(..., help=issueIdsHelp),
+        details: bool = typer.Option(False, "-d", "--details", help=detailsHelp),
+        showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
+) -> None:
+    jirapi = ctx.obj 
+    issueids= list(set(issueids))
+    args = [[issue, True]if details else [issue, False] for issue in issueids]
+    issues = [issue for arg in args if (issue := jirapi.getIssue(*arg)) or (issue := {arg[0]: "Does Not Exist"} if not issue else issue)]
+    if showinbrowser or printLongList(issues) == 'b':
+        typer.echo('showing issues in new tab in your default browser')
+        title = f'Issues from Ids: {", ".join(issueids)}'
+        elements =[]
+        elements.append(Heading(1, title))
+        for issue in issues:
+            if isinstance(issue, Issue):
+                elements.append(Heading(2, Anchor(issue.view, issue.key)))
+                if details:
+                    standardFields = issue.getFields(Issue.noCustomFields)
+                    standardFieldsTable = createTableFromDicts(f'rendered standard fields from {issue.key}', standardFields)
+                    elements.append(standardFieldsTable)
+                    customFields = issue.getFields(Issue.onlyCustomFields)
+                    customFieldsTable = createTableFromDicts(f'rendered custom fields from {issue.key}', customFields)
+                    elements.append(customFieldsTable)
+                    allFields = issue.getFields()
+                    allFieldsTable = createTableFromDicts(f'All rendered fields from {issue.key}', allFields)
+                    elements.append(allFieldsTable)
+            else: 
+                # this should be the no issue found error dict 
+                elements.append(Heading(2, str(issue)))
+        props ={
+            'title': title,
+            'elements': elements
+        }
+        showInBrowser(props, 'listOfElements.html')
+
+
+#######
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context,
         configfile: str = typer.Option(None, "-c", "--configfile"), 

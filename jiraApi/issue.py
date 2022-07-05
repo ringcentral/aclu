@@ -14,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import json 
-from typing import Dict 
+from typing import Dict, List, Callable 
 
 from . import jiraApiUtils
 from .resourceBase import ResourceBase 
@@ -27,6 +27,10 @@ class Issue(ResourceBase):
     """
     details: str = 'expand=renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations'
     basic: str = 'fields= none'
+    """ predefined filters for getFields  """
+    allFields: Callable[[str], bool] = lambda k: True
+    onlyCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and  k.startswith('custom')
+    noCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and not k.startswith('custom')
     #####
     @classmethod
     def getIssue(cls, issueId: str, details: bool = False) -> object:
@@ -42,7 +46,7 @@ class Issue(ResourceBase):
         self.id = issue.get('id')
         self.url = issue.get('self')
         self.key = issue.get('key')
-        self.view = f'{jiraApiUtils.platformUrl}/preview/{self.key}'
+        self.view = f'{jiraApiUtils.baseUrl}/browse/{self.key}'
         self.fields = issue.get('fields')        
         self.renderedFields = issue.get('renderedFields')
         self.names = issue.get('names')
@@ -61,17 +65,29 @@ class Issue(ResourceBase):
             return json.dumps(self.raw, indent = 4)
 
     #####
-    def getDetails(self) -> Dict:
+    def getFields(self, filter: Callable[[str], bool] = allFields) -> List[Dict]:
         """
+        filter is a callable accepting one string argument, returning a bool
+        if filter(k) is tru, that field is added to the dict  
+
         if the GET for the issue resource included the expand query param,
         there should be several dicts detailing custom fields for the issue.
-        This method goes through those dicts to create a single dict with all the useful information.
+        two of those dicts are renderedFields and names
+        go through those to get the names of the fields that have non-None rendered values 
+        a dict is returned in the list for each rendered field 
+        filter is a way to exclude, or include only those fields with ids of a certain format
+        I did this instead of two, more narrow methods 
+        to get only custom fields and only non-custom fields 
+        see the class variables for predefined filters to effectively have those two methods 
         """
         if not self.names:
             logger.info(f'No details for issue {self.key}')
             return None 
         else:
-            pass 
-
+            fields = []
+            for k, v in self.renderedFields.items():
+                if v and filter(k):
+                    fields.append({'name': self.names.get(k), 'value':v, 'field id': k})
+            return fields 
 
 ## end of file 

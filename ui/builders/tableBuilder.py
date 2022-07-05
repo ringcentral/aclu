@@ -128,11 +128,17 @@ def createTableFromDicts(caption: Any, rows: List[Dict]) -> Table:
     this is, so far, the easiest way to construct an HTML table from data the user has pulled from anywhere
     The rows are the dicts in the list, in order they appear in the list
     the column names are derived from the keys in the dicts
-    the row heading is the first item in the dict 
-    and the column heading for the first column in the table is the first key in the dict for the row
+    the row heading is the value from the first item in the dict representing that row  
+    and the heading for the first column (column of row headings) in the table is the key from the first key, value  pair from the first dict in the list 
 
     Using this a developer doesn't need to know anything about generating HTML tables, especially accessibility 
     it's all about defaults...
+    Caveat, I've only used this for lists of very consistent dicts,
+    that is, they all have the same size and keys.
+    It's likely this fails quickly for random dicts in a list 
+    That is, if the dicts represent, say a very sparsely populated table, dicts with different keys with little overlap 
+    this table might not be what you want.
+    It's better to use the TableInfo and RowInfo dataclasses 
     """
     rowHeadingName = list(rows[0].keys())[0]
     tableinfo = TableInfo(caption, rowHeadingName)

@@ -37,7 +37,10 @@ def printLongList(data: List[object], pageSize: int = 7) -> str:
     """
     idx = 0
     datalen = len(data) 
-    typer.echo(f'there are {datalen} items, printing {pageSize} items per page')
+    if datalen < pageSize:
+        typer.echo(f'printing {datalen} items')
+    else:
+        typer.echo(f'there are {datalen} items, printing {pageSize} items per page')
     while idx < datalen:
         typer.echo(f'item {idx}: {data[idx]}')
         idx += 1
