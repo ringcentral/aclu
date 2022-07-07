@@ -19,14 +19,13 @@ class ResourceBase:
         this get is used by all resources extending ResourceBase to 
         get the resource from Jira
         the URL must be fully constructed by the calling method
-        the resourceId is used only for logging support 
+        the resourceId is used for logging and to create a dict if resource Does Not Exist (dne)
         """
         resp, resource = jiraApiUtils.getResource(resourceUrl, convertPayload=True)
         if resource is None:
             logger.info(f'could not find resource with id: {resourceId}')
-            return None 
-        else:
-            return cls(resource)
+            resource = {'id': resourceId, 'dne': True}
+        return cls(resource)
 
 
 ## end of file 

@@ -28,6 +28,7 @@ class Dashboard(ResourceBase):
         """
         self.name = dbrd.get('name')
         self.id = dbrd.get('id')
+        self.dne = dbrd.get('dne', False)
         self.url = dbrd.get('self') 
         self.view = dbrd.get('view') 
         self.raw = dbrd 

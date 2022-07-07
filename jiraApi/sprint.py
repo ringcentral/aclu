@@ -18,6 +18,7 @@ class Sprint:
 
     def __init__(self, spri: Dict, getAllIssues: bool = False): 
         self.id = spri.get('id')
+        self.dne = spri.get('dne', False)
         self.name = spri.get('name')
         self.state = spri.get('state')
         self.startDate = spri.get('startDate')

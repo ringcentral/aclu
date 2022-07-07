@@ -2,7 +2,7 @@
 The Board class represents the main resource of the Agile API (Jira Software Server)
 
 A board is used to aggregate issues, epics, sprints,
-and a bunch of other resources. 
+and other resources. 
 """
 
 import logging 
@@ -14,6 +14,7 @@ from . import jiraApiUtils
 from .resourceBase import ResourceBase 
 from .epic import Epic 
 from .sprint import Sprint 
+from .issue import Issue 
 
 #######
 class Board(ResourceBase):
@@ -35,6 +36,7 @@ class Board(ResourceBase):
         self.name = brd.get('name')
         self.type = brd.get('type')
         self.id = brd.get('id')
+        self.dne = brd.get('dne', False)
         self.url = brd.get('self') 
         """ 
         we have id, url, name, and type for the board.
@@ -42,8 +44,18 @@ class Board(ResourceBase):
         epics, sprints, maybe even versions seem relevant
         leave those empty for now and let the user fill in what they want 
         """
+        self.backlog = []
         self.epics = []
         self.sprints = []
+
+    #####
+    def getBacklog(self) -> None:
+        backlog = jiraApiUtils.getPaginatedResources(f'{self.url}/backlog', fields='description')
+        if len(backlog) > 0:
+            self.backlog = [Issue(issue) for issue in backlog]
+        else:
+            logger.info(f'board {self.id}, {self.name} has no backlog.  Can that really be true?')
+
 
     #####
     def getEpics(self, includeIssues: bool = False) -> None:
@@ -55,7 +67,7 @@ class Board(ResourceBase):
 
     #####
     def getEpic(self, epicId: str) -> Epic:
-        return Epic.getEpic(epicId, self.url)
+        return Epic.getEpic(epicId)
 
 
     #####

@@ -74,8 +74,8 @@ class JiraApi:
     def getEpic(self, epicId: str) -> Epic:
         return Epic.getEpic(epicId)
 
-    def getIssue(self, issueId: str, details:bool = False) -> Issue:
-        return Issue.getIssue(issueId, details)
+    def getIssue(self, issueId: str) -> Issue:
+        return Issue.getIssue(issueId)
 
 
 ## end of file 

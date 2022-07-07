@@ -9,15 +9,14 @@ from . import app
 from jiraApi import JiraApi, Issue  
 from acluUtils import printLongList, getModuleDir, storeLocals   
 import ui 
-from ui.elements.utils import Heading, Anchor, Paragraph   
-from ui.elements.tables import Caption 
+from ui.elements.utils import Heading, Anchor, Paragraph, Title   
+# from ui.elements.tables import Caption 
 from ui.builders.tableBuilder import TableInfo, RowInfo, createTableFromDicts  
 
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
 issueIdsHelp = "id, or key, of Jira issues.  Must match exactly, this is not a search, it is a GET operation"
-detailsHelp = "True if you want details for requested resources"
 idsHelp = "search strings are IDs of resources, much faster if you know what you're looking for"
 containsAllHelp = "flag to indicate match all search words, default is to match any search word. "
 caseSensitiveHelp = "flag to make search case sensitive"
@@ -50,26 +49,25 @@ def dashboards(ctx: typer.Context,
     jirapi = ctx.obj 
     searchstrings = list(set(searchstrings))
     if ids:
-        ## dabrds = [db if db else {id: "Does Not Exist"} for id in searchstrings if (db := jirapi.getDashboard(id)) or True]
-        dabrds = [db for id in searchstrings if (db := jirapi.getDashboard(id)) or (db := {id: "Does Not Exist"} if not db else db)]
+        dabrds = [jirapi.getDashboard(id) for id in searchstrings]
     else:
         dabrds = jirapi.findDashboards(searchstrings, containsall, casesensitive)
     if showinbrowser or printLongList(dabrds) == 'b':
-        typer.echo('opening new tab in your default browser')
-        table = TableInfo(Caption(f'Found {len(dabrds)} dashboards'), rowHeadingName='dashboard name, click to view in Jira')
+        title = f"Searching for dashboards {', '.join(searchstrings)}"
+        table = TableInfo(f'Found {len(dabrds)} dashboards', rowHeadingName='dashboard name, click to view in Jira')
         for db in dabrds:
-            name = db.name
+            name = db.name if db.name else f'dashboard with id {db.id} does not exist'
             href = db.view
             row = RowInfo(heading=Anchor(href, name))
             table.addRow(row)
         elements =[]
-        elements.append(Heading(2, 'Search Properties'))
-        elements.append(Paragraph(f'{locs}'))
+        elements.append(Heading(1, title))
         elements.append(table.getTable())
         props ={
-            'title': ' '.join(searchstrings),
+            'title': Title(title),
             'elements': elements
         }
+        typer.echo('opening new tab in your default browser')
         showInBrowser(props, 'listOfElements.html')
     ## if len(dabrds) > 0: dabrds[0].printRaw()
 
@@ -87,7 +85,7 @@ def boards(ctx: typer.Context,
     searchstrings = list(set(searchstrings))
     if ids:
         ## brds = [brd if brd else {id: "Does Not Exist"} for id in searchstrings if (brd := jirapi.getBoard(id)) or True]
-        brds = [brd for id in searchstrings if (brd := jirapi.getBoard(id)) or (brd := {id: "Does Not Exist"} if not brd else brd)]
+        brds = [jirapi.getBoard(id) for id in searchstrings]
     else:
         brds = jirapi.findBoards(searchstrings, containsall, casesensitive)
     retOpt = printLongList(brds)
@@ -99,38 +97,34 @@ def boards(ctx: typer.Context,
 @app.command()
 def issues(ctx: typer.Context,
         issueids: List[str] = typer.Argument(..., help=issueIdsHelp),
-        details: bool = typer.Option(False, "-d", "--details", help=detailsHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:
     jirapi = ctx.obj 
     issueids= list(set(issueids))
-    args = [[issue, True]if details else [issue, False] for issue in issueids]
-    issues = [issue for arg in args if (issue := jirapi.getIssue(*arg)) or (issue := {arg[0]: "Does Not Exist"} if not issue else issue)]
+    issues = [jirapi.getIssue(id) for id in issueids]
     if showinbrowser or printLongList(issues) == 'b':
-        typer.echo('showing issues in new tab in your default browser')
         title = f'Issues from Ids: {", ".join(issueids)}'
         elements =[]
         elements.append(Heading(1, title))
         for issue in issues:
-            if isinstance(issue, Issue):
+            if issue.dne: # Does Not Exist  
+                elements.append(Heading(2, f'no such issue with id {issue.id}'))
+            else:
                 elements.append(Heading(2, Anchor(issue.view, issue.key)))
-                if details:
-                    standardFields = issue.getFields(Issue.noCustomFields)
-                    standardFieldsTable = createTableFromDicts(f'rendered standard fields from {issue.key}', standardFields)
-                    elements.append(standardFieldsTable)
-                    customFields = issue.getFields(Issue.onlyCustomFields)
-                    customFieldsTable = createTableFromDicts(f'rendered custom fields from {issue.key}', customFields)
-                    elements.append(customFieldsTable)
-                    allFields = issue.getFields()
-                    allFieldsTable = createTableFromDicts(f'All rendered fields from {issue.key}', allFields)
-                    elements.append(allFieldsTable)
-            else: 
-                # this should be the no issue found error dict 
-                elements.append(Heading(2, str(issue)))
+                standardFields = issue.getFields(Issue.noCustomFields)
+                standardFieldsTable = createTableFromDicts(f'Standard fields from {issue.key}', standardFields)
+                elements.append(standardFieldsTable)
+                customFields = issue.getFields(Issue.onlyCustomFields)
+                customFieldsTable = createTableFromDicts(f'Custom fields from {issue.key}', customFields)
+                elements.append(customFieldsTable)
+                allFields = issue.getFields()
+                allFieldsTable = createTableFromDicts(f'All fields from {issue.key}', allFields)
+                elements.append(allFieldsTable)
         props ={
-            'title': title,
+            'title': Title(title),
             'elements': elements
         }
+        typer.echo('showing issues in new tab in your default browser')
         showInBrowser(props, 'listOfElements.html')
 
 

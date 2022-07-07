@@ -29,6 +29,7 @@ class Epic(ResourceBase):
     #####
     def __init__(self, ep: Dict, getAllIssues: bool = False):
         self.id = ep.get('id')
+        self.dne = ep.get('dne', False)
         self.name = ep.get('name')
         self.key = ep.get('key')
         self.summary = ep.get('summary')
@@ -49,14 +50,8 @@ class Epic(ResourceBase):
         """
         In Jira, an epic is an issue with extra info
         it possibly has many custom fields which are stored in the associated Issue 
-        get the Issue with those custom fields and generate a dict with the:
-        name of the field,
-        the value in the field
-        the type of the field 
-        and the id of the custom field 
-        only do this for fields that have data, there are possibly hundredes of fields we don't care about, and are empty 
         """
-        self.issue = Issue.getIssue(self.key, details=True)
+        self.issue = Issue.getIssue(self.key)
 
 
     #####

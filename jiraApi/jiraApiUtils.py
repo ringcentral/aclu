@@ -151,7 +151,7 @@ def getResourcesFromPayload(payload: Dict) -> List[Dict]:
 
 
 #######
-def getUrlForNextPage(resourceUrl: str, payload: Dict) -> str:
+def getUrlForNextPage(resourceUrl: str, payload: Dict, **kwArgs) -> str:
     """
     This is a big place of inconsistency across the paginated resources.
     some meta data has an isLast boolean property, 
@@ -181,16 +181,25 @@ def getUrlForNextPage(resourceUrl: str, payload: Dict) -> str:
     numResources = len(getResourcesFromPayload(payload))
     logger.info(f'started at: {startAt}, max results: {maxResults}, total available: {total}, numResources: {numResources}, is last: {isLast}, next is {"NOT None" if next != None else None}')
     ## now the logic.
-    if next: return next
+    if next: return next + queryParmsFromDict(kwArgs)
     if isLast: return None 
     if total and ((total == 0) or (startAt > total)): return None 
     if numResources < maxResults: return None 
     ## else, we need to construct the next url based on the base and properties from the payload 
-    return f'{resourceUrl}?startAt={startAt + maxResults}&maxResults={maxResults}'
+    return f'{resourceUrl}?startAt={startAt + maxResults}&maxResults={maxResults}{queryParmsFromDict(kwArgs)}'
 
 
 #######
-def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500) -> List[Dict]:
+def queryParmsFromDict(parms: Dict) -> str:
+    if parms and len(parms) > 0:
+        qpl = [f'{k}={v}' for k, v in parms.items()]
+        return '&' +  ','.join(qpl)
+    else:
+        return ''
+
+
+#######
+def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, containsAll: bool = False, caseSensitive: bool = False, maxResults: int = 0, pageSize: int = 500, **kwArgs) -> List[Dict]:
     """
     this is the starting point to getting the list of resources for a paginated resource 
     it takes the base URL of the resource and desired page size.
@@ -200,12 +209,13 @@ def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, contai
     And maxResources is a soft limit as in, 
     this implementation allows up to maxResources + pageSize resources to be returned 
     casesensitive is easy to understand,
-    containsAll though is about AND vs OR
+    containsAll though is about AND versus OR
     containsAll == True: return items with names containing all the search strings (AND)
     else: return items with names containing any of the search strings (OR) 
+    kwArgs is used to add any number of extra query parms.
     """
     resources = []
-    nextUrl = f'{resourceUrl}?maxResults={pageSize}'
+    nextUrl = f'{resourceUrl}?maxResults={pageSize}{queryParmsFromDict(kwArgs)}'
     while nextUrl:
         resp, payload = getResource(nextUrl, convertPayload=True)
         if payload == None:
@@ -221,7 +231,7 @@ def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, contai
         # if we've exceeded maxResources already, 
         # don't get the next resource and let the loop fall through naturally 
         if maxResults> 0 and len(resources) > maxResults: nextUrl = None
-        else: nextUrl = getUrlForNextPage(resourceUrl, payload)
+        else: nextUrl = getUrlForNextPage(resourceUrl, payload, **kwArgs)
     return resources 
 
 
