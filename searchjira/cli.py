@@ -24,14 +24,14 @@ showInBrowserHelp = "show search results in your default web browser"
 
 
 #######
-def showInBrowser(props: Dict, template: str) -> None:
+def showInBrowser(props: Dict, template: str = 'listOfElements.html') -> None:
     """
     it is important to initialize the UI env from here to get the correct templates directory
     the templates directory in this package has templates specific to this package 
     do not be tempted to move showInBrowser to utils or the ui package
     this is why showinBrowser is two lines, once the initEnv is done,
     anything else can be done in the ui package 
-    this will hopefully go away if/when I implement proper package resource management 
+    TODO: this will hopefully go away if/when I implement proper package resource management 
     """
     ui.initEnv([getModuleDir() + '/templates'])
     ui.openPage(props, template)
@@ -68,8 +68,7 @@ def dashboards(ctx: typer.Context,
             'elements': elements
         }
         typer.echo('opening new tab in your default browser')
-        showInBrowser(props, 'listOfElements.html')
-    ## if len(dabrds) > 0: dabrds[0].printRaw()
+        showInBrowser(props)
 
 
 #######
@@ -125,7 +124,7 @@ def issues(ctx: typer.Context,
             'elements': elements
         }
         typer.echo('showing issues in new tab in your default browser')
-        showInBrowser(props, 'listOfElements.html')
+        showInBrowser(props)
 
 
 #######
