@@ -18,7 +18,7 @@ from .issue import Issue
 
 #######
 class Board(ResourceBase):
-
+    issueFields:str = 'created,updated,lastViewed,priority,status,issuetype,summary'
     #####
     @classmethod
     def getBoard(cls, boardId: str) -> object:
@@ -45,17 +45,25 @@ class Board(ResourceBase):
         leave those empty for now and let the user fill in what they want 
         """
         self.backlog = []
+        self.issues = []
         self.epics = []
         self.sprints = []
 
     #####
     def getBacklog(self) -> None:
-        backlog = jiraApiUtils.getPaginatedResources(f'{self.url}/backlog', fields='description')
+        backlog = jiraApiUtils.getPaginatedResources(f'{self.url}/backlog', fields=Board.issueFields)
         if len(backlog) > 0:
             self.backlog = [Issue(issue) for issue in backlog]
         else:
-            logger.info(f'board {self.id}, {self.name} has no backlog.  Can that really be true?')
+            logger.info(f'board {self.id}, {self.name} has no issues in its backlog.  Can that really be true?')
 
+    #####
+    def getAllIssues(self) -> None:
+        allIssues = jiraApiUtils.getPaginatedResources(f'{self.url}/issue', fields=Board.issueFields)
+        if len(allIssues) > 0:
+            self.issues = [Issue(issue) for issue in allIssues]
+        else:
+            logger.info(f'board {self.id}, {self.name} has no issues.  Must be nice, or total denial.')
 
     #####
     def getEpics(self, includeIssues: bool = False) -> None:
@@ -76,13 +84,13 @@ class Board(ResourceBase):
         if len(jiraSprints) > 0:
             self.sprints = [Sprint(spr) for spr in jiraSprints]
         else:
-            logger.info(f'board {self.id}, {self.name} has no sprints.  No sprints for you!!')
+            logger.info(f'board {self.id}, {self.name} has no sprints.  Just cruzin along, maybe kanban?')
 
     #####
     def __repr__(self):
         epicsStr = f'\n{self.epics}' if len(self.epics) > 0 else '' 
         sprintsStr = f'\n{self.sprints}' if len(self.sprints) > 0 else ''
-        return f'Board id: {self.id}, name: {self.name}, type: {self.type} {epicsStr} {sprintsStr}'
+        return f'Board id: {self.id}, name: {self.name}, type: {self.type}, number of issues: {len(self.issues)}, issues in backlog: {len(self.backlog)} {epicsStr} {sprintsStr}'
 
 
 ## end of file 

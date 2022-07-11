@@ -2,11 +2,12 @@
 
 An issue can be a simple issue in Jira,
 or a base resource of other Jira/Agile constructs, e.g. Epic 
-It turns out instead of Epic extending Issue, Epic contains an Issue, that was cleaner 
+instead of Epic extending Issue, I made Epic contain an Issue, that was cleaner 
 
 the issue resource in Jira is part of the server platform API
 Other resources can be considered special cases of an issue, e.g., epic 
 the server platform API can be used to get such issues, but they might not have all the fields associated with the special use case
+thus, for example, use the agile API to get epic resources to get all the fields associated with an epic.
 
 I struggled quite a bit with which fields to track directly in the issue, and how.
 A GET with no query parms will return a fields property of a dict with all possible fields, most of which are custom fields.
@@ -25,10 +26,10 @@ The fields dict has the field id, and the field value.
 The names dict has the mapping from the field id to a useful name. 
 """
 
-
 import logging
 logger = logging.getLogger(__name__)
 
+from dateutil.parser import parse 
 import json 
 from typing import Dict, List, Callable 
 
@@ -58,13 +59,23 @@ class Issue(ResourceBase):
         self.fields = issue.get('fields')        
         self.names = issue.get('names')
         self.raw = issue 
+        # get all the fields 
+        # created,updated,lastViewed,priority,status,issuetype,summary
+        self.created = parse(self.fields.get('created'))
+        self.updated = parse(self.fields.get('updated'))
+        self.lastViewed = parse(self.fields.get('lastViewed')) if self.fields.get('lastViewed') else self.created 
+        self.priority = self.fields.get('priority').get('name')
+        self.status = self.fields.get('status').get('name')
+        self.statusCategory = self.fields.get('status').get('statusCategory').get('name')
+        self.issueType = self.fields.get('issuetype').get('name')
+        self.summary = self.fields.get('summary') 
 
     #####
     def __repr__(self):
         if self.dne:
             return f'Id: {self.id} Does Not Exist'
         else:
-            return f'Id: {self.id}, key: {self.key}, view: {self.view}, url: {self.url}, number of fields: {len(self.fields)}, number of names : {len(self.names)}'
+            return f'Id: {self.id}, key: {self.key}, view: {self.view}, url: {self.url}, number of fields: {len(self.fields) if self.fields else 0}, number of names : {len(self.names) if self.names else 0}'
 
     #####
     def getFields(self, filter: Callable[[str], bool] = allFields) -> List[Dict]:
