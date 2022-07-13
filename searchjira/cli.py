@@ -83,18 +83,16 @@ def boards(ctx: typer.Context,
     jirapi = ctx.obj 
     searchstrings = list(set(searchstrings))
     if ids:
-        ## brds = [brd if brd else {id: "Does Not Exist"} for id in searchstrings if (brd := jirapi.getBoard(id)) or True]
         brds = [jirapi.getBoard(id) for id in searchstrings]
     else:
         brds = jirapi.findBoards(searchstrings, containsall, casesensitive)
-    retOpt = printLongList(brds)
-    if retOpt == 'b':
+    if showinbrowser or printLongList(brds) == 'b':
         typer.echo('soon...')
 
 
 #######
 @app.command()
-def issues(ctx: typer.Context,
+def issue(ctx: typer.Context,
         issueids: List[str] = typer.Argument(..., help=issueIdsHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:

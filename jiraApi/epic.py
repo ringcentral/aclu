@@ -11,7 +11,7 @@ more like a proxy to the underlying Issue resource.
 import logging
 logger = logging.getLogger(__name__)
 
-from typing import Dict 
+from typing import Dict, List 
 
 from . import jiraApiUtils
 from .resourceBase import ResourceBase 
@@ -32,6 +32,7 @@ class Epic(ResourceBase):
         self.dne = ep.get('dne', False)
         self.name = ep.get('name')
         self.key = ep.get('key')
+        self.view = f'{jiraApiUtils.baseUrl}/browse/{self.key}'
         self.summary = ep.get('summary')
         self.done = ep.get('done')
         self.url = ep.get('self')
@@ -46,7 +47,7 @@ class Epic(ResourceBase):
             logger.warning(f'failed to get list of issues for epic {self.id}, {self.key}')
 
     #####
-    def getDetails(self) -> Dict:
+    def getIssueDetails(self) -> List[Dict]:
         """
         In Jira, an epic is an issue with extra info
         it possibly has many custom fields which are stored in the associated Issue 

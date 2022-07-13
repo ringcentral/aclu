@@ -25,11 +25,14 @@ We still need the expand query parms to get the names for the fields.
 The fields dict has the field id, and the field value.
 The names dict has the mapping from the field id to a useful name. 
 """
+from __future__ import annotations  ## support for forward type references, must be first line of code in file  
 
 import logging
 logger = logging.getLogger(__name__)
 
+from datetime import datetime as dt 
 from dateutil.parser import parse 
+from dateutil import tz 
 import json 
 from typing import Dict, List, Callable 
 
@@ -45,7 +48,7 @@ class Issue(ResourceBase):
     noCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and not k.startswith('custom')
     #####
     @classmethod
-    def getIssue(cls, issueId: str) -> object:
+    def getIssue(cls, issueId: str) -> Issue:
         url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?{Issue.expandQueryParm}'
         return super().get(url, f'issue/{issueId}')
 
@@ -78,8 +81,30 @@ class Issue(ResourceBase):
             return f'Id: {self.id}, key: {self.key}, view: {self.view}, url: {self.url}, number of fields: {len(self.fields) if self.fields else 0}, number of names : {len(self.names) if self.names else 0}'
 
     #####
-    def getFields(self, filter: Callable[[str], bool] = allFields) -> List[Dict]:
+    def getFields(self) -> Dict:
         """
+        get only the fields that are properties of the issue object.
+        use getAllFields to iterate through the fields and names dicts
+        throw in a few attributes not from fields,
+        this method is most likely used to generate a row in a HTML table 
+        """
+        return {
+            'key': self.key,
+            'view': self.view,
+            'summary': self.summary,
+            'priority': self.priority,
+            'status': self.status,
+            ## 'status category': self.statusCategory,
+            'issue type': self.issueType,
+            'created': self.created.strftime('%Y-%m-%d %H:%M'),
+            'updated': self.updated.strftime('%Y-%m-%d %H:%M')
+        }
+
+    #####
+    def getAllFields(self, filter: Callable[[str], bool] = allFields) -> List[Dict]:
+        """
+        getAllFields iterates through the fields and names dicts, assuming they are  here.
+        'All' is in contrast to getFields which returns very few fields.
         filter is a callable accepting one string argument, returning a bool
         if filter(k) is tru, that field is added to the returned dict  
 
@@ -93,8 +118,8 @@ class Issue(ResourceBase):
         Use both to get useful labels and values for non empty fields 
         """
         ## fieldList = []
-        if not self.fields:
-            logger.info(f'No fields returned for issue {self.key}')
+        if not self.names:
+            logger.info(f'No names for issue {self.key}.  you must use Issue.getIssue() to have fields and names')
             return []
         else:
             return [{'name': self.names.get(k), 'value':str(v), 'field id': k} for k,v in self.fields.items() if v and filter(k)]
@@ -104,6 +129,43 @@ class Issue(ResourceBase):
                     fieldList.append({'name': self.names.get(k), 'value':str(v), 'field id': k})
         return fieldList 
             """
+
+    #####
+    @staticmethod
+    def analyzeIssues(issues: List[Issue], attributes: List[str], weeksToLookBack: int = 7) -> Dict:
+        """
+        for each attribute in the attributes list,
+        we want to know the different values in the issues and how many times each value appears.
+        The resulting dict has an entry with each attribute as a key 
+        and its value is a dict with each value seen for that attribute as a key,
+        and how many times that value occured as the value.
+
+        We also want to know how many issues were created/updated within the last several weeks.
+        weeksToLookBack is used to calculate how many issues were created/updated in the last n weeks.
+        """
+        attrValueCounts = {attr:{} for attr in attributes}
+        # in the history lists, the index is the number of weeks ago an issue was created or updated. 
+        createdHistory = [0] * (weeksToLookBack + 1)
+        updatedHistory = [0] * (weeksToLookBack + 1)
+        nowDate = dt.now(tz=tz.tzutc()).date()
+        for issue in issues:
+            for attr in attributes:
+                if (av := getattr(issue, attr, None)) != None:
+                    # increment the count for the attr value in the appropriate dict of counts 
+                    attrCounts = attrValueCounts.get(attr)
+                    if attrCounts.get(av, None) is None: attrCounts[av] = 1
+                    else: attrCounts[av] += 1
+                else:
+                    logger.debug(f'{issue.key} has no attribute {attr}')
+            ## now check created and updated times 
+            createdWeeksAgo = (nowDate - issue.created.date()).days // 7  
+            createdWeeksAgo = weeksToLookBack if createdWeeksAgo > weeksToLookBack else createdWeeksAgo 
+            createdHistory[createdWeeksAgo] += 1
+            updatedWeeksAgo = (nowDate - issue.updated.date()).days // 7  
+            updatedWeeksAgo = weeksToLookBack if updatedWeeksAgo > weeksToLookBack else updatedWeeksAgo 
+            updatedHistory[updatedWeeksAgo] += 1
+        attrValueCounts.update({'createdHistory':createdHistory, 'updatedHistory': updatedHistory}) 
+        return attrValueCounts
 
 
 ## end of file 
