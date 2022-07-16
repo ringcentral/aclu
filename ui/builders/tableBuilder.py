@@ -32,7 +32,8 @@ class RowInfo:
         the names represent the columns,
         the value is the entry in that column for this row 
         """
-        self.entries.update(kwArgs)
+        if self.entries: self.entries.update(kwArgs) 
+        else: self.entries = kwArgs 
 
     #####
     def properties(self) -> List[Any]:
@@ -40,8 +41,10 @@ class RowInfo:
         the properties are the column headings for the table 
         the value for each cell in the row is stored in a dict with the property (key) being the column for that value 
         """
-        return list(self.entries.keys())
+        if self.entries: return list(self.entries.keys())
+        else: return []
 
+    #####
     def getRow(self, columns: List[Any]) -> TableRow:
         """
         return the TableRow object that can generate the HTML for the row 
@@ -72,7 +75,7 @@ class TableInfo:
         self.rows.append(row) 
 
     #####
-    def generateColumnHeadings(self):
+    def generateColumnHeadings(self) -> None:
         """
         if you don't want to set the column headings directly, they can be inferred by the names of properties in the rows
 

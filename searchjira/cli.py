@@ -21,6 +21,7 @@ idsHelp = "search strings are IDs of resources, much faster if you know what you
 containsAllHelp = "flag to indicate match all search words, default is to match any search word. "
 caseSensitiveHelp = "flag to make search case sensitive"
 showInBrowserHelp = "show search results in your default web browser"
+detailsHelp = "include details of resources shown in the browser, only appplies if -b also set"
 
 
 #######
@@ -78,7 +79,8 @@ def boards(ctx: typer.Context,
         ids: bool = typer.Option(False, "-i", "--ids", help=idsHelp),
         containsall: bool = typer.Option(False, "-a", "--all", help=containsAllHelp),
         casesensitive: bool = typer.Option(False, "-c", "--casesensitive", help=caseSensitiveHelp),
-        showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
+        showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp),
+        details: bool = typer.Option(False, "-d", "--details", help=detailsHelp)
 ) -> None:
     jirapi = ctx.obj 
     searchstrings = list(set(searchstrings))
@@ -87,12 +89,16 @@ def boards(ctx: typer.Context,
     else:
         brds = jirapi.findBoards(searchstrings, containsall, casesensitive)
     if showinbrowser or printLongList(brds) == 'b':
-        typer.echo('soon...')
+        title = f'Results from search boards for {", ".join(searchstrings)}'
+        elements = [Heading(1, title)]
+        for board in brds:
+            if details: board.getDetails()
+        typer.echo('Showing results in your default browser')
 
 
 #######
 @app.command()
-def issue(ctx: typer.Context,
+def issues(ctx: typer.Context,
         issueids: List[str] = typer.Argument(..., help=issueIdsHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:

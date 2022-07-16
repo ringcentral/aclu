@@ -4,6 +4,7 @@ The Board class represents the main resource of the Agile API (Jira Software Ser
 A board is used to aggregate issues, epics, sprints,
 and other resources. 
 """
+from __future__ import annotations  ## support for forward type references, must be first line of code in file  
 
 import logging 
 logger = logging.getLogger(__name__)
@@ -21,13 +22,13 @@ class Board(ResourceBase):
     issueFields:str = 'created,updated,lastViewed,priority,status,issuetype,summary'
     #####
     @classmethod
-    def getBoard(cls, boardId: str) -> object:
+    def getBoard(cls, boardId: str) -> Board:
         url = f'{jiraApiUtils.agileUrl}/board/{boardId}'
         return super().get(url, f'board/{boardId}')
 
 
     #####
-    def __init__(self, brd: Dict, fullyPopulate: bool =False):
+    def __init__(self, brd: Dict):
         """ 
         a Board is created with a Dict acquired from the Jira API
         Probably from previously searching across all boards on name matching given search strings,
@@ -51,7 +52,7 @@ class Board(ResourceBase):
 
     #####
     def getBacklog(self) -> None:
-        backlog = jiraApiUtils.getPaginatedResources(f'{self.url}/backlog', fields=Board.issueFields)
+        backlog = jiraApiUtils.getPaginatedResources(f'{self.url}/backlog', fields=Issue.basicFields)
         if len(backlog) > 0:
             self.backlog = [Issue(issue) for issue in backlog]
         else:
@@ -59,7 +60,7 @@ class Board(ResourceBase):
 
     #####
     def getAllIssues(self) -> None:
-        allIssues = jiraApiUtils.getPaginatedResources(f'{self.url}/issue', fields=Board.issueFields)
+        allIssues = jiraApiUtils.getPaginatedResources(f'{self.url}/issue', fields=Issue.basicFields)
         if len(allIssues) > 0:
             self.issues = [Issue(issue) for issue in allIssues]
         else:
@@ -70,6 +71,8 @@ class Board(ResourceBase):
         jiraEpics = jiraApiUtils.getPaginatedResources(f'{self.url}/epic')
         if len(jiraEpics) > 0:
             self.epics = [Epic(ep) for ep in jiraEpics]
+            if includeIssues:
+                for epic in self.epics: epic.getIssues()
         else:
             logger.info(f'board {self.id}, {self.name} has no epics.  No epics for you!!')
 
@@ -85,6 +88,16 @@ class Board(ResourceBase):
             self.sprints = [Sprint(spr) for spr in jiraSprints]
         else:
             logger.info(f'board {self.id}, {self.name} has no sprints.  Just cruzin along, maybe kanban?')
+
+    #####
+    def getDetails(self) -> None:
+        """
+        make sure the board has all the epics, and each epic has its issues 
+        make sure the backlog has been retrieved as well.
+        This is most likely used when getting ready to perform some analysis on the board 
+        """
+        if len(self.epics) == 0: self.getEpics()
+        pass
 
     #####
     def __repr__(self):

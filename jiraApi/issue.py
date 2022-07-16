@@ -41,15 +41,19 @@ from .resourceBase import ResourceBase
 
 #######
 class Issue(ResourceBase):
-    expandQueryParm: str = 'expand=fields,names' 
+    basicFields= 'created,updated,lastViewed,priority,status,issuetype,summary'
+    expandQueryParm: str = 'fields,names' 
     """ predefined filters for getFields  """
     allFields: Callable[[str], bool] = lambda k: True
     onlyCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and  k.startswith('custom')
     noCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and not k.startswith('custom')
     #####
     @classmethod
-    def getIssue(cls, issueId: str) -> Issue:
-        url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?{Issue.expandQueryParm}'
+    def getIssue(cls, issueId: str, allFields: bool = False) -> Issue:
+        if allFields:
+            url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?expand={Issue.expandQueryParms}'
+        else:
+            url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?fields={Issue.basicFields}'
         return super().get(url, f'issue/{issueId}')
 
     #####
@@ -62,7 +66,7 @@ class Issue(ResourceBase):
         self.fields = issue.get('fields')        
         self.names = issue.get('names')
         self.raw = issue 
-        # get all the fields 
+        # get all the basic fields 
         # created,updated,lastViewed,priority,status,issuetype,summary
         self.created = parse(self.fields.get('created'))
         self.updated = parse(self.fields.get('updated'))
@@ -87,6 +91,7 @@ class Issue(ResourceBase):
         use getAllFields to iterate through the fields and names dicts
         throw in a few attributes not from fields,
         this method is most likely used to generate a row in a HTML table 
+        but it would be bad to let the UI details creep in to the jiraApi package 
         """
         return {
             'key': self.key,
@@ -119,16 +124,10 @@ class Issue(ResourceBase):
         """
         ## fieldList = []
         if not self.names:
-            logger.info(f'No names for issue {self.key}.  you must use Issue.getIssue() to have fields and names')
+            logger.info(f'No names for issue {self.key}.  you must use Issue.getIssue(allFields=True) to have fields and names')
             return []
         else:
             return [{'name': self.names.get(k), 'value':str(v), 'field id': k} for k,v in self.fields.items() if v and filter(k)]
-            """
-            for k, v in self.fields.items():
-                if v and filter(k):
-                    fieldList.append({'name': self.names.get(k), 'value':str(v), 'field id': k})
-        return fieldList 
-            """
 
     #####
     @staticmethod
