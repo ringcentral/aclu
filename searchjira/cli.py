@@ -6,13 +6,14 @@ import typer
 from typing import List, Dict 
 
 from . import app
-from jiraApi import JiraApi, Issue  
+from jiraApi import JiraApi, Issue, Board  
 from acluUtils import printLongList, getModuleDir, storeLocals   
 import ui 
 from ui.elements.utils import Heading, Anchor, Paragraph, Title   
+from ui.elements.lists import UnorderedList, ListItem 
 # from ui.elements.tables import Caption 
 from ui.builders.tableBuilder import TableInfo, RowInfo, createTableFromDicts  
-
+import uiHelpers 
 
 """ help strings that are used in multiple commands """ 
 searchStringsHelp = "strings to search for in resource name, default is match any of the strings"
@@ -84,6 +85,7 @@ def boards(ctx: typer.Context,
 ) -> None:
     jirapi = ctx.obj 
     searchstrings = list(set(searchstrings))
+    brds: List[Board] = None 
     if ids:
         brds = [jirapi.getBoard(id) for id in searchstrings]
     else:
@@ -92,8 +94,22 @@ def boards(ctx: typer.Context,
         title = f'Results from search boards for {", ".join(searchstrings)}'
         elements = [Heading(1, title)]
         for board in brds:
-            if details: board.getDetails()
-        typer.echo('Showing results in your default browser')
+            if details: 
+                elements.append(Heading(2, f'Details for board {board.name}'))
+                board.getDetails(allIssues=True, backlog=True, epics=True)
+                elements.append(uiHelpers.createHtmlForIssues(3, f'all issues on board {board.name}, {len(board.issues)} issues', board.issues))
+                elements.append(uiHelpers.createHtmlForIssues(3, f'backlog for board {board.name}, {len(board.backlog)} issues', board.backlog, includeIssuesTable=True))
+            else:
+                # give the name, type,and id with a link to view on Jira 
+                elements.append(Heading(2, f'Board {Anchor(board.view, board.name)}'))
+                elements.append(UnorderedList([ListItem(f'\"type\": {board.type}'), ListItem(f'\"ID\": {board.id}')]))
+        typer.echo('Showing board(s)in your default browser')
+        props ={
+            'title': Title(title),
+            'elements': elements
+        }
+        typer.echo('showing issues in new tab in your default browser')
+        showInBrowser(props)
 
 
 #######

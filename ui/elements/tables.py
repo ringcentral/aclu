@@ -10,7 +10,7 @@ it's 2022, use  CSS for layout and formatting
 from typing import List, Any
 
 from .baseElements import BaseElement, BaseElementList  
-from .utils import Anchor, Heading, StrOrDict  
+from .utils import Anchor, Heading
 
 
 #######
@@ -96,7 +96,7 @@ class Table(BaseElementList):
         A caption howerver will be read to me after typing 't' and landing on the next table.
         """
         if not caption: 
-            raise ValueError("WTF, gives us a real caption my precious")
+            raise ValueError("WTF, gives us a real caption for this Table my precious")
         self.caption = caption
         # make sure caption is first on the elements list so it gets rendered by the base __repr__
         elements = [caption] + elements if elements else [caption]

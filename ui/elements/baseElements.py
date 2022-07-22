@@ -69,10 +69,9 @@ class BaseElement:
         """
         lattrs = inAttrs if inAttrs else  self.attrs 
         attrString = ''
-        if not lattrs or len(lattrs) == 0: 
-            return attrString
-        for k,v in lattrs.items():
-            attrString += f' {k}="{v}"'
+        if lattrs and len(lattrs) > 0: 
+            for k,v in lattrs.items():
+                attrString += f' {k}="{v}"'
         return attrString 
 
 

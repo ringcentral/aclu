@@ -18,8 +18,7 @@ from .sprint import Sprint
 from .issue import Issue 
 
 #######
-class Board(ResourceBase):
-    issueFields:str = 'created,updated,lastViewed,priority,status,issuetype,summary'
+class Board(ResourceBase):    
     #####
     @classmethod
     def getBoard(cls, boardId: str) -> Board:
@@ -37,6 +36,7 @@ class Board(ResourceBase):
         self.name = brd.get('name')
         self.type = brd.get('type')
         self.id = brd.get('id')
+        self.view = f'{jiraApiUtils.baseUrl}/secure/RapidBoard.jspa?rapidView={self.id}'
         self.dne = brd.get('dne', False)
         self.url = brd.get('self') 
         """ 
@@ -90,14 +90,15 @@ class Board(ResourceBase):
             logger.info(f'board {self.id}, {self.name} has no sprints.  Just cruzin along, maybe kanban?')
 
     #####
-    def getDetails(self) -> None:
+    def getDetails(self, allIssues=False,  backlog=False, epics=False, sprints=False) -> None:
         """
-        make sure the board has all the epics, and each epic has its issues 
-        make sure the backlog has been retrieved as well.
-        This is most likely used when getting ready to perform some analysis on the board 
+        the caller must specifically set True for the details desired.
+        This is most likely used when getting ready to perform some analysis on the board. 
         """
-        if len(self.epics) == 0: self.getEpics()
-        pass
+        if allIssues and len(self.issues) == 0: self.getAllIssues() 
+        if backlog and  len(self.backlog) == 0: self.getBacklog()
+        if epics and len(self.epics) == 0: self.getEpics()
+        if sprints and len(self.sprints) == 0: self.getSprints() 
 
     #####
     def __repr__(self):

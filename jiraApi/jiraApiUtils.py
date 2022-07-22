@@ -128,7 +128,7 @@ def getResource(url: str, convertPayload: bool = False) -> Tuple[requests.Respon
         resp = requests.get(url, auth = jiraCreds)
         if resp is None : return (None, None)
         if not resp.ok:
-            logger.info(f'query to {url}, returned status code: {resp.status_code}')
+            logger.warning(f'query to {url}, returned status code/reason: {resp.status_code}, {resp.reason}')
             return None,None
         if convertPayload: return  resp, getObjectFromJsonString(resp.text)
         else: return resp, None  
@@ -220,6 +220,7 @@ def getPaginatedResources(resourceUrl: str, searchList: List[str] = None, contai
         resp, payload = getResource(nextUrl, convertPayload=True)
         if payload == None:
             logger.warning(f'no payload for url {nextUrl}?!?')
+            # logger.warning(f'response status code/reason: {resp.status_code}, {resp.reason}.  Returning {len(resources)} already found resources')
             return resources 
         ## else carry on with the payload 
         currentResources = getResourcesFromPayload(payload)

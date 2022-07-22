@@ -6,7 +6,7 @@ the list items (including <dt> and <dd>) are defined in here as well.
 from typing import List, Any
 
 from .baseElements import BaseElement, BaseElementList 
-from .utils import Anchor, Heading, StrOrDict  
+from .utils import Anchor, Heading
 
 """
 <li>, <dt>, and <dd> are nearly the same element with different tags.
@@ -47,7 +47,11 @@ class ListItem(BaseElement):
 
 ####### 
 class UnorderedList(BaseElementList):
-    def __init__(self, entries: List[Any] = None, **kwArgs):
+    def __init__(self, entries: List[ListItem] = None, **kwArgs):
+        """
+        technically a <ul> can have more than just <li> elements.
+        For now though, it will be limited to ListItems.
+        """
         super().__init__('ul', entries, **kwArgs)
 
 

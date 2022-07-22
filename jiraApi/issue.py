@@ -43,7 +43,9 @@ from .resourceBase import ResourceBase
 class Issue(ResourceBase):
     basicFields= 'created,updated,lastViewed,priority,status,issuetype,summary'
     expandQueryParm: str = 'fields,names' 
-    """ predefined filters for getFields  """
+    # the default list of attributes to be analyzed (summarize their different values)
+    defaultAttributesToAnalyze: List[str] = ['status', 'priority', 'issueType']
+    # predefined filters for getFields 
     allFields: Callable[[str], bool] = lambda k: True
     onlyCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and  k.startswith('custom')
     noCustomFields: Callable[[str], bool] = lambda k: isinstance(k, str) and not k.startswith('custom')
@@ -87,15 +89,14 @@ class Issue(ResourceBase):
     #####
     def getFields(self) -> Dict:
         """
-        get only the fields that are properties of the issue object.
-        use getAllFields to iterate through the fields and names dicts
-        throw in a few attributes not from fields,
+        get only the fields that are attributes of the issue object.
+        use getAllFields if you want to iterate through the fields and names dicts
         this method is most likely used to generate a row in a HTML table 
-        but it would be bad to let the UI details creep in to the jiraApi package 
+        but it would be bad to let the UI details creep in to the jiraApi package... 
         """
         return {
-            'key': self.key,
-            'view': self.view,
+            # 'key': self.key,
+            # 'view': self.view,
             'summary': self.summary,
             'priority': self.priority,
             'status': self.status,
@@ -131,8 +132,9 @@ class Issue(ResourceBase):
 
     #####
     @staticmethod
-    def analyzeIssues(issues: List[Issue], attributes: List[str], weeksToLookBack: int = 7) -> Dict:
+    def analyzeIssues(issues: List[Issue], attributes: List[str] = defaultAttributesToAnalyze, weeksToLookBack: int = 7) -> Dict:
         """
+        weeksToLookBack (must be at least 3) is used to calculate how many issues were created/updated in the last n weeks.
         for each attribute in the attributes list,
         we want to know the different values in the issues and how many times each value appears.
         The resulting dict has an entry with each attribute as a key 
@@ -140,9 +142,9 @@ class Issue(ResourceBase):
         and how many times that value occured as the value.
 
         We also want to know how many issues were created/updated within the last several weeks.
-        weeksToLookBack is used to calculate how many issues were created/updated in the last n weeks.
         """
-        attrValueCounts = {attr:{} for attr in attributes}
+        if weeksToLookBack < 3: raise ValueError('weeksToLookBack must be at least 3')
+        attrValuesCounts = {attr:{} for attr in attributes}
         # in the history lists, the index is the number of weeks ago an issue was created or updated. 
         createdHistory = [0] * (weeksToLookBack + 1)
         updatedHistory = [0] * (weeksToLookBack + 1)
@@ -151,7 +153,7 @@ class Issue(ResourceBase):
             for attr in attributes:
                 if (av := getattr(issue, attr, None)) != None:
                     # increment the count for the attr value in the appropriate dict of counts 
-                    attrCounts = attrValueCounts.get(attr)
+                    attrCounts = attrValuesCounts.get(attr)
                     if attrCounts.get(av, None) is None: attrCounts[av] = 1
                     else: attrCounts[av] += 1
                 else:
@@ -162,9 +164,8 @@ class Issue(ResourceBase):
             createdHistory[createdWeeksAgo] += 1
             updatedWeeksAgo = (nowDate - issue.updated.date()).days // 7  
             updatedWeeksAgo = weeksToLookBack if updatedWeeksAgo > weeksToLookBack else updatedWeeksAgo 
-            updatedHistory[updatedWeeksAgo] += 1
-        attrValueCounts.update({'createdHistory':createdHistory, 'updatedHistory': updatedHistory}) 
-        return attrValueCounts
+            updatedHistory[updatedWeeksAgo] += 1   
+        return {'attributeValuesCounts': attrValuesCounts, 'cuHistory': {'created':createdHistory, 'updated': updatedHistory}}
 
 
 ## end of file 
