@@ -3,7 +3,7 @@
 
 #from datetime import datetime as dt 
 import typer
-from typing import List, Dict 
+from typing import List, Dict, Any 
 
 from . import app
 from jiraApi import JiraApi, Issue, Board  
@@ -39,6 +39,16 @@ def showInBrowser(props: Dict, template: str = 'listOfElements.html') -> None:
     ui.openPage(props, template)
 
 #######
+def showElementsInBrowser(title: str, elements: List[Any]) -> None:
+    props ={
+        'title': Title(title),
+        'elements': elements
+    }
+    typer.echo(f'opening new tab in your default browser for {title}')
+    showInBrowser(props)
+
+
+#######
 @app.command()
 def dashboards(ctx: typer.Context,
         searchstrings: List[str] = typer.Argument(..., help=searchStringsHelp),
@@ -65,13 +75,7 @@ def dashboards(ctx: typer.Context,
         elements =[]
         elements.append(Heading(1, title))
         elements.append(table.getTable())
-        props ={
-            'title': Title(title),
-            'elements': elements
-        }
-        typer.echo('opening new tab in your default browser')
-        showInBrowser(props)
-
+        showElementsInBrowser(title, elements)
 
 #######
 @app.command()
@@ -103,13 +107,7 @@ def boards(ctx: typer.Context,
                 # give the name, type,and id with a link to view on Jira 
                 elements.append(Heading(2, f'Board {Anchor(board.view, board.name)}'))
                 elements.append(UnorderedList([ListItem(f'\"type\": {board.type}'), ListItem(f'\"ID\": {board.id}')]))
-        typer.echo('Showing board(s)in your default browser')
-        props ={
-            'title': Title(title),
-            'elements': elements
-        }
-        typer.echo('showing issues in new tab in your default browser')
-        showInBrowser(props)
+        showElementsInBrowser(title, elements)
 
 
 #######
@@ -123,8 +121,7 @@ def issues(ctx: typer.Context,
     issues = [jirapi.getIssue(id) for id in issueids]
     if showinbrowser or printLongList(issues) == 'b':
         title = f'Issues from Ids: {", ".join(issueids)}'
-        elements =[]
-        elements.append(Heading(1, title))
+        elements = [Heading(1, title)]
         for issue in issues:
             if issue.dne: # Does Not Exist  
                 elements.append(Heading(2, f'no such issue with id {issue.id}'))
@@ -139,12 +136,7 @@ def issues(ctx: typer.Context,
                 allFields = issue.getFields()
                 allFieldsTable = createTableFromDicts(f'All fields from {issue.key}', allFields)
                 elements.append(allFieldsTable)
-        props ={
-            'title': Title(title),
-            'elements': elements
-        }
-        typer.echo('showing issues in new tab in your default browser')
-        showInBrowser(props)
+        showElementsInBrowser(title, elements)
 
 
 #######

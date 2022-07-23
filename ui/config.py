@@ -35,7 +35,6 @@ def initEnv(templateDirs: List[str] = None) -> Environment:
     # TODO: check the dirs are valid and don't modify passed in list  
     if templateDirs: templateDirs.append(getDefaultTemplateDir())
     else: templateDirs = getDefaultTemplateDir()
-    print(f'initEnv: templateDirs is {templateDirs}')
     global env 
     env = Environment(
         line_statement_prefix = '#',
