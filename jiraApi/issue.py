@@ -53,7 +53,7 @@ class Issue(ResourceBase):
     @classmethod
     def getIssue(cls, issueId: str, allFields: bool = False) -> Issue:
         if allFields:
-            url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?expand={Issue.expandQueryParms}'
+            url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?expand={Issue.expandQueryParm}'
         else:
             url = f'{jiraApiUtils.platformUrl}/issue/{issueId}?fields={Issue.basicFields}'
         return super().get(url, f'issue/{issueId}')

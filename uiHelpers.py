@@ -112,14 +112,24 @@ def createHtmlForIssues(level: int, description: str, issues: List[Issue], inclu
 
 
 #######
-def createHtmlForEpic(level: int, epic: Epic) -> Div:
+def createHtmlForEpics(level: int, boardName:str, epics: List[Epic]) -> Div:
     """
     Level is needed for any headers created here.
     an Epic will have a list with properties of the list, 
     then a table showing all issues in that epic.
     Thus it's wrapped in a div.
     """
-    pass 
+    elements = [Heading(level, f'{len(epics)} Epics  on Board {boardName}')]
+    for epic in epics:
+        elements.append(Heading(level + 1, f'Epic {Anchor(epic.view, f"{epic.name}: {epic.key}")}'))
+        elements.append(UnorderedList([
+                    ListItem(f'Summary: {epic.summary}'), 
+                    ListItem(f'Created: {epic.selfIssue.created}'), 
+                    ListItem(f'Updated: {epic.selfIssue.updated}'),
+                    ListItem(f'Done: {epic.done}')
+        ]))
+        elements.append(createHtmlForIssues(level + 2, f'Issues for Epic {epic.name}, {len(epic.containedIssues)} issues', epic.containedIssues, includeIssuesTable=True))
+    return Div(elements)
 
 
 #######
@@ -132,7 +142,12 @@ def createHtmlForBoard(level: int, board: Board) -> Div:
     then HTML for each epic and for the backlog.
     And it's wrapped up nicely in a lovely div. 
     """
-    pass 
+    elements = [Heading(level, f'Board {Anchor(board.view, board.name)}')]
+    elements.append(UnorderedList([ListItem(f'\"type\": {board.type}'), ListItem(f'\"ID\": {board.id}')]))
+    if len(board.issues) > 0: elements.append(createHtmlForIssues(level + 1, f'all issues on board {board.name}, {len(board.issues)} issues', board.issues))
+    if len(board.backlog) > 0: elements.append(createHtmlForIssues(level + 1, f'backlog for board {board.name}, {len(board.backlog)} issues', board.backlog, includeIssuesTable=True))
+    if len(board.epics) > 0: elements.append(createHtmlForEpics(level + 1, board.name, board.epics))
+    return Div(elements)
 
 
 ## end of file  

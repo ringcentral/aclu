@@ -50,16 +50,15 @@ class Epic(ResourceBase):
             logger.warning(f'failed to get list of issues for epic {self.id}, {self.key}')
 
     #####
-    def getMyIssueDetails(self) -> List[Dict]:
+    def getSelfIssue(self) -> None:
         """
         In Jira, an epic is an issue with extra info
         it possibly has many custom fields which are stored in the associated Issue 
         """
-        self.selfIssue = Issue.getIssue(self.key, allFields=True)
+        self.selfIssue = Issue.getIssue(self.key)
         self.issueId = self.selfIssue.id
         self.issueKey = self.selfIssue.key 
         self.issueFields = self.selfIssue.fields 
-        self.issueFieldNames = self.selfIssue.names 
 
 
     #####

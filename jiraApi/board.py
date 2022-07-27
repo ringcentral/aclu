@@ -72,7 +72,9 @@ class Board(ResourceBase):
         if len(jiraEpics) > 0:
             self.epics = [Epic(ep) for ep in jiraEpics]
             if includeIssues:
-                for epic in self.epics: epic.getIssues()
+                for epic in self.epics: 
+                    epic.getIssues()
+                    epic.getSelfIssue()
         else:
             logger.info(f'board {self.id}, {self.name} has no epics.  No epics for you!!')
 
@@ -97,7 +99,7 @@ class Board(ResourceBase):
         """
         if allIssues and len(self.issues) == 0: self.getAllIssues() 
         if backlog and  len(self.backlog) == 0: self.getBacklog()
-        if epics and len(self.epics) == 0: self.getEpics()
+        if epics and len(self.epics) == 0: self.getEpics(includeIssues=True)
         if sprints and len(self.sprints) == 0: self.getSprints() 
 
     #####

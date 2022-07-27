@@ -99,14 +99,8 @@ def boards(ctx: typer.Context,
         elements = [Heading(1, title)]
         for board in brds:
             if details: 
-                elements.append(Heading(2, f'Details for board {board.name}'))
                 board.getDetails(allIssues=True, backlog=True, epics=True)
-                elements.append(uiHelpers.createHtmlForIssues(3, f'all issues on board {board.name}, {len(board.issues)} issues', board.issues))
-                elements.append(uiHelpers.createHtmlForIssues(3, f'backlog for board {board.name}, {len(board.backlog)} issues', board.backlog, includeIssuesTable=True))
-            else:
-                # give the name, type,and id with a link to view on Jira 
-                elements.append(Heading(2, f'Board {Anchor(board.view, board.name)}'))
-                elements.append(UnorderedList([ListItem(f'\"type\": {board.type}'), ListItem(f'\"ID\": {board.id}')]))
+            elements.append(uiHelpers.createHtmlForBoard(2, board))
         showElementsInBrowser(title, elements)
 
 
@@ -116,9 +110,9 @@ def issues(ctx: typer.Context,
         issueids: List[str] = typer.Argument(..., help=issueIdsHelp),
         showinbrowser: bool = typer.Option(False, "-b", "--browser", help=showInBrowserHelp)
 ) -> None:
-    jirapi = ctx.obj 
+    jirapi: JiraApi = ctx.obj 
     issueids= list(set(issueids))
-    issues = [jirapi.getIssue(id) for id in issueids]
+    issues: List[Issue] = [jirapi.getIssue(id, allFields=True) for id in issueids]
     if showinbrowser or printLongList(issues) == 'b':
         title = f'Issues from Ids: {", ".join(issueids)}'
         elements = [Heading(1, title)]
@@ -127,13 +121,13 @@ def issues(ctx: typer.Context,
                 elements.append(Heading(2, f'no such issue with id {issue.id}'))
             else:
                 elements.append(Heading(2, Anchor(issue.view, issue.key)))
-                standardFields = issue.getFields(Issue.noCustomFields)
+                standardFields = issue.getAllFields(Issue.noCustomFields)
                 standardFieldsTable = createTableFromDicts(f'Standard fields from {issue.key}', standardFields)
                 elements.append(standardFieldsTable)
-                customFields = issue.getFields(Issue.onlyCustomFields)
+                customFields = issue.getAllFields(Issue.onlyCustomFields)
                 customFieldsTable = createTableFromDicts(f'Custom fields from {issue.key}', customFields)
                 elements.append(customFieldsTable)
-                allFields = issue.getFields()
+                allFields = issue.getAllFields()
                 allFieldsTable = createTableFromDicts(f'All fields from {issue.key}', allFields)
                 elements.append(allFieldsTable)
         showElementsInBrowser(title, elements)

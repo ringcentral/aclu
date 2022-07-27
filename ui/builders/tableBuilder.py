@@ -161,6 +161,7 @@ def createTableFromDicts(caption: Any, rows: List[Dict]) -> Table:
     this table might not be what you want.
     It's better to use the TableInfo and RowInfo dataclasses 
     """
+    if len(rows) == 0: raise ValueError('no rows sent to createTableFromDict')
     rowHeadingName = list(rows[0].keys())[0]
     tableinfo = TableInfo(caption, rowHeadingName)
     for row in rows:
